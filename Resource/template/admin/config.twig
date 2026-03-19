@@ -1,0 +1,76 @@
+{% extends '@admin/default_frame.twig' %}
+
+{% block title %}在庫アラートメール設定{% endblock %}
+{% block sub_title %}プラグイン設定{% endblock %}
+
+{% block stylesheet %}{% endblock %}
+
+{% block main %}
+<div class="c-contentsArea__cols">
+    <div class="c-contentsArea__primaryCol">
+        <div class="c-primaryCol">
+
+            <div class="row justify-content-between mb-2">
+                <div class="col-auto"><h2 class="head-title">在庫アラートメール設定</h2></div>
+            </div>
+
+            <form method="post" action="{{ path('stock_alert_mail_admin_config') }}">
+                {{ form_widget(form._token) }}
+
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <span>アラート設定</span>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="row mb-3">
+                            <div class="col-3">
+                                <label class="col-form-label">{{ form_label(form.threshold) }} <span class="badge badge-danger ml-1">必須</span></label>
+                            </div>
+                            <div class="col-9">
+                                <div class="input-group" style="max-width: 200px;">
+                                    {{ form_widget(form.threshold, {'attr': {'class': 'form-control'}}) }}
+                                    <div class="input-group-append"><span class="input-group-text">個</span></div>
+                                </div>
+                                <small class="form-text text-muted">この個数以下になった商品をメールで通知します。</small>
+                                {{ form_errors(form.threshold) }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-3">
+                                <label class="col-form-label">{{ form_label(form.alertEmails) }}</label>
+                            </div>
+                            <div class="col-9">
+                                {{ form_widget(form.alertEmails, {'attr': {'class': 'form-control'}}) }}
+                                <small class="form-text text-muted">空欄の場合は店舗設定のメールアドレス（{{ BaseInfo.email01 }}）を使用します。複数の場合はカンマ区切り。</small>
+                                {{ form_errors(form.alertEmails) }}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <span>cron 設定例</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1">以下のコマンドを cron に登録してください。</p>
+                        <pre class="bg-light p-3 rounded"><code>0 * * * * /path/to/php /path/to/ec-cube/bin/console eccube:plugin:stock-alert-mail</code></pre>
+                        <small class="text-muted">上記の例は毎時0分に実行します。</small>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 text-right">
+                        <button type="submit" class="btn btn-ec-conversion">保存</button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

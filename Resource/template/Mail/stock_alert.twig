@@ -1,0 +1,21 @@
+{{ BaseInfo.shopName }} 管理者様
+
+在庫数が閾値（{{ threshold }}個）以下の商品があります。
+ご確認をお願いします。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+在庫アラート対象商品（{{ lowStockItems|length }}件）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{% for item in lowStockItems %}
+■ {{ item.Product.name }}{% if item.hasClassCategory1 %} [{{ item.ClassCategory1.name }}{% if item.hasClassCategory2 %} / {{ item.ClassCategory2.name }}{% endif %}]{% endif %}
+
+  現在の在庫数：{{ item.stock }} 個
+  閾値：{{ threshold }} 個
+
+{% endfor %}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+在庫の補充をご検討ください。
+
+{{ BaseInfo.shopName }}

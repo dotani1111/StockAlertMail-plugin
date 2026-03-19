@@ -1,0 +1,134 @@
+<?php
+
+namespace Plugin\StockAlertMail\Command;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Eccube\Entity\BaseInfo;
+use Eccube\Repository\BaseInfoRepository;
+use Eccube\Repository\ProductClassRepository;
+use Plugin\StockAlertMail\Entity\StockAlertLog;
+use Plugin\StockAlertMail\Repository\StockAlertConfigRepository;
+use Plugin\StockAlertMail\Repository\StockAlertLogRepository;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
+use Twig\Environment;
+
+class StockAlertCommand extends Command
+{
+    protected static $defaultName = 'eccube:plugin:stock-alert-mail';
+
+    private BaseInfo $BaseInfo;
+
+    public function __construct(
+        private readonly BaseInfoRepository $baseInfoRepository,
+        private readonly ProductClassRepository $productClassRepository,
+        private readonly StockAlertConfigRepository $configRepository,
+        private readonly StockAlertLogRepository $logRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly MailerInterface $mailer,
+        private readonly Environment $twig,
+    ) {
+        parent::__construct();
+        $this->BaseInfo = $this->baseInfoRepository->get();
+    }
+
+    protected function configure(): void
+    {
+        $this->setDescription('在庫数が閾値以下の商品を管理者にメール通知します');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        $config = $this->configRepository->findOneBy([]);
+        if ($config === null) {
+            $io->error('プラグイン設定が見つかりません。プラグインを有効化してください。');
+            return Command::FAILURE;
+        }
+
+        $threshold = $config->getThreshold();
+
+        // 全ProductClassを取得（在庫無制限・非公開除く）
+        $allItems = $this->productClassRepository->createQueryBuilder('pc')
+            ->select('pc')
+            ->innerJoin('pc.Product', 'p')
+            ->where('pc.stock_unlimited = false')
+            ->andWhere('pc.visible = true')
+            ->andWhere('p.Status = 1')
+            ->getQuery()
+            ->getResult();
+
+        $newAlertItems = [];
+
+        foreach ($allItems as $productClass) {
+            $isLowStock = $productClass->getStock() <= $threshold;
+            $log = $this->logRepository->findOneBy(['ProductClass' => $productClass]);
+
+            if ($isLowStock && $log === null) {
+                // 閾値以下 かつ 未送信 → アラート対象
+                $newAlertItems[] = $productClass;
+
+                // ログに記録
+                $newLog = new StockAlertLog();
+                $newLog->setProductClass($productClass);
+                $newLog->setAlertedAt(new \DateTime());
+                $this->entityManager->persist($newLog);
+
+            } elseif (!$isLowStock && $log !== null) {
+                // 在庫が回復 → ログを削除してリセット
+                $this->entityManager->remove($log);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        if (empty($newAlertItems)) {
+            $io->success('新規の在庫アラート対象商品はありません。');
+            return Command::SUCCESS;
+        }
+
+        $io->info(sprintf('%d 件の新規在庫アラート対象商品が見つかりました。', count($newAlertItems)));
+
+        // メール送信
+        $toEmails = $this->resolveToEmails($config);
+        $body = $this->twig->render('@StockAlertMail/Mail/stock_alert.twig', [
+            'BaseInfo' => $this->BaseInfo,
+            'lowStockItems' => $newAlertItems,
+            'threshold' => $threshold,
+        ]);
+
+        $message = (new Email())
+            ->subject('[' . $this->BaseInfo->getShopName() . '] 在庫アラート通知')
+            ->from(new Address($this->BaseInfo->getEmail01(), $this->BaseInfo->getShopName()))
+            ->text($body);
+
+        foreach ($toEmails as $email) {
+            $message->addTo($email);
+        }
+
+        try {
+            $this->mailer->send($message);
+            $io->success(sprintf('在庫アラートメールを %s に送信しました。', implode(', ', $toEmails)));
+        } catch (\Exception $e) {
+            $io->error('メール送信に失敗しました: ' . $e->getMessage());
+            return Command::FAILURE;
+        }
+
+        return Command::SUCCESS;
+    }
+
+    private function resolveToEmails($config): array
+    {
+        $alertEmails = $config->getAlertEmails();
+        if (!empty($alertEmails)) {
+            return array_filter(array_map('trim', explode(',', $alertEmails)));
+        }
+        return [$this->BaseInfo->getEmail01()];
+    }
+}
