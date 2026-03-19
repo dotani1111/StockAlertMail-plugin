@@ -99,7 +99,6 @@ jobs:
         run: |
           php bin/console doctrine:database:create --if-not-exists
           php bin/console doctrine:schema:create
-          php bin/console doctrine:migrations:migrate --no-interaction
           php bin/console eccube:fixtures:load
           php bin/console eccube:plugin:install --code=StockAlertMail
           php bin/console eccube:plugin:enable --code=StockAlertMail
