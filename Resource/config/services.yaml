@@ -1,4 +1,1 @@
-services:
-    Plugin\StockAlertMail\Nav:
-        tags:
-            - { name: eccube.nav }
+services: ~

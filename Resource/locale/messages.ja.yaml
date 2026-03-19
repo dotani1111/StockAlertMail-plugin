@@ -2,8 +2,6 @@
 # StockAlertMail Plugin
 #====================================================================================
 
-stock_alert_mail.nav.config: 在庫アラートメール設定
-
 stock_alert_mail.admin.config.title: 在庫アラートメール設定
 stock_alert_mail.admin.config.subtitle: プラグイン設定
 stock_alert_mail.admin.config.section.alert: アラート設定
