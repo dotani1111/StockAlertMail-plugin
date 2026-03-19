@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+ *
+ * http://www.ec-cube.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Plugin\StockAlertMail\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -8,13 +19,16 @@ use Doctrine\ORM\Mapping as ORM;
  * 在庫アラートメール設定エンティティ
  *
  * @ORM\Table(name="plg_stock_alert_config")
+ *
  * @ORM\Entity(repositoryClass="Plugin\StockAlertMail\Repository\StockAlertConfigRepository")
  */
 class StockAlertConfig
 {
     /**
      * @ORM\Column(name="id", type="integer", options={"unsigned":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
@@ -56,6 +70,7 @@ class StockAlertConfig
     public function setThreshold($threshold)
     {
         $this->threshold = $threshold;
+
         return $this;
     }
 
@@ -67,6 +82,7 @@ class StockAlertConfig
     public function setAlertEmails($alertEmails)
     {
         $this->alertEmails = $alertEmails;
+
         return $this;
     }
 
@@ -78,6 +94,7 @@ class StockAlertConfig
     public function setCreateDate($createDate)
     {
         $this->createDate = $createDate;
+
         return $this;
     }
 
@@ -89,6 +106,7 @@ class StockAlertConfig
     public function setUpdateDate($updateDate)
     {
         $this->updateDate = $updateDate;
+
         return $this;
     }
 }

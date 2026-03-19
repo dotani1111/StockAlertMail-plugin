@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+ *
+ * http://www.ec-cube.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Plugin\StockAlertMail\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -49,6 +60,7 @@ class StockAlertCommand extends Command
         $config = $this->configRepository->findOneBy([]);
         if ($config === null) {
             $io->error('プラグイン設定が見つかりません。プラグインを有効化してください。');
+
             return Command::FAILURE;
         }
 
@@ -79,7 +91,6 @@ class StockAlertCommand extends Command
                 $newLog->setProductClass($productClass);
                 $newLog->setAlertedAt(new \DateTime());
                 $this->entityManager->persist($newLog);
-
             } elseif (!$isLowStock && $log !== null) {
                 // 在庫が回復 → ログを削除してリセット
                 $this->entityManager->remove($log);
@@ -90,6 +101,7 @@ class StockAlertCommand extends Command
 
         if (empty($newAlertItems)) {
             $io->success('新規の在庫アラート対象商品はありません。');
+
             return Command::SUCCESS;
         }
 
@@ -104,7 +116,7 @@ class StockAlertCommand extends Command
         ]);
 
         $message = (new Email())
-            ->subject('[' . $this->BaseInfo->getShopName() . '] 在庫アラート通知')
+            ->subject('['.$this->BaseInfo->getShopName().'] 在庫アラート通知')
             ->from(new Address($this->BaseInfo->getEmail01(), $this->BaseInfo->getShopName()))
             ->text($body);
 
@@ -116,7 +128,8 @@ class StockAlertCommand extends Command
             $this->mailer->send($message);
             $io->success(sprintf('在庫アラートメールを %s に送信しました。', implode(', ', $toEmails)));
         } catch (\Exception $e) {
-            $io->error('メール送信に失敗しました: ' . $e->getMessage());
+            $io->error('メール送信に失敗しました: '.$e->getMessage());
+
             return Command::FAILURE;
         }
 
@@ -129,6 +142,7 @@ class StockAlertCommand extends Command
         if (!empty($alertEmails)) {
             return array_filter(array_map('trim', explode(',', $alertEmails)));
         }
+
         return [$this->BaseInfo->getEmail01()];
     }
 }

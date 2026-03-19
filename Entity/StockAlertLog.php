@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+ *
+ * http://www.ec-cube.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Plugin\StockAlertMail\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -9,19 +20,23 @@ use Eccube\Entity\ProductClass;
  * 在庫アラート送信済みログ
  *
  * @ORM\Table(name="plg_stock_alert_log")
+ *
  * @ORM\Entity(repositoryClass="Plugin\StockAlertMail\Repository\StockAlertLogRepository")
  */
 class StockAlertLog
 {
     /**
      * @ORM\Column(name="id", type="integer", options={"unsigned":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="Eccube\Entity\ProductClass")
+     *
      * @ORM\JoinColumn(name="product_class_id", referencedColumnName="id", nullable=false)
      */
     private $ProductClass;
@@ -44,6 +59,7 @@ class StockAlertLog
     public function setProductClass(ProductClass $productClass)
     {
         $this->ProductClass = $productClass;
+
         return $this;
     }
 
@@ -55,6 +71,7 @@ class StockAlertLog
     public function setAlertedAt($alertedAt)
     {
         $this->alertedAt = $alertedAt;
+
         return $this;
     }
 }
