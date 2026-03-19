@@ -27,22 +27,22 @@ class StockAlertConfigType extends AbstractType
     {
         $builder
             ->add('threshold', IntegerType::class, [
-                'label' => '在庫アラート閾値',
+                'label' => 'stock_alert_mail.form.threshold.label',
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank(),
                     new Assert\GreaterThanOrEqual(0),
                 ],
                 'attr' => [
-                    'placeholder' => '例: 5',
+                    'placeholder' => 'stock_alert_mail.form.threshold.placeholder',
                 ],
-                'help' => 'この個数以下になった商品をメールで通知します。',
+                'help' => 'stock_alert_mail.form.threshold.help',
             ])
             ->add('alertEmails', TextareaType::class, [
-                'label' => '通知先メールアドレス',
+                'label' => 'stock_alert_mail.form.alert_emails.label',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => '空欄の場合は店舗設定のメールアドレスを使用します。複数の場合はカンマ区切り。',
+                    'placeholder' => 'stock_alert_mail.form.alert_emails.placeholder',
                     'rows' => 3,
                 ],
             ]);

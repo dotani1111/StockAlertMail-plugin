@@ -1,0 +1,37 @@
+#====================================================================================
+# StockAlertMail Plugin
+#====================================================================================
+
+stock_alert_mail.nav.config: Stock Alert Mail Settings
+
+stock_alert_mail.admin.config.title: Stock Alert Mail Settings
+stock_alert_mail.admin.config.subtitle: Plugin Settings
+stock_alert_mail.admin.config.section.alert: Alert Settings
+stock_alert_mail.admin.config.section.cron: Cron Configuration Example
+stock_alert_mail.admin.config.cron.description: Register the following command in cron.
+stock_alert_mail.admin.config.cron.note: The example above runs at every hour on the minute.
+stock_alert_mail.admin.config.unit: unit(s)
+stock_alert_mail.admin.config.save: Save
+stock_alert_mail.admin.config.required: Required
+
+stock_alert_mail.form.threshold.label: Stock Alert Threshold
+stock_alert_mail.form.threshold.placeholder: 'e.g. 5'
+stock_alert_mail.form.threshold.help: Products at or below this quantity will trigger an email notification.
+stock_alert_mail.form.alert_emails.label: Notification Email Address(es)
+stock_alert_mail.form.alert_emails.placeholder: If empty, the store email address will be used. Separate multiple addresses with commas.
+
+stock_alert_mail.command.description: Notifies the administrator by email when stock falls below the threshold
+stock_alert_mail.command.config_not_found: Plugin configuration not found. Please enable the plugin.
+stock_alert_mail.command.no_alert_items: No new low-stock items found.
+stock_alert_mail.command.alert_items_found: 'Found %count% new low-stock item(s).'
+stock_alert_mail.command.mail_sent: 'Stock alert email sent to %emails%.'
+stock_alert_mail.command.mail_failed: 'Failed to send email: %message%'
+stock_alert_mail.command.mail_subject: '[%shop_name%] Stock Alert Notification'
+
+stock_alert_mail.mail.greeting: 'Dear %shop_name% Administrator,'
+stock_alert_mail.mail.low_stock_intro: 'The following products have stock at or below the threshold (%threshold% units).'
+stock_alert_mail.mail.please_check: Please review and restock as needed.
+stock_alert_mail.mail.alert_title: 'Low Stock Items (%count% item(s))'
+stock_alert_mail.mail.current_stock: 'Current Stock: %stock% unit(s)'
+stock_alert_mail.mail.threshold_label: 'Threshold: %threshold% unit(s)'
+stock_alert_mail.mail.restock_message: Please consider restocking these items.

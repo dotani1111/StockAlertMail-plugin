@@ -1,0 +1,37 @@
+#====================================================================================
+# StockAlertMail Plugin
+#====================================================================================
+
+stock_alert_mail.nav.config: 在庫アラートメール設定
+
+stock_alert_mail.admin.config.title: 在庫アラートメール設定
+stock_alert_mail.admin.config.subtitle: プラグイン設定
+stock_alert_mail.admin.config.section.alert: アラート設定
+stock_alert_mail.admin.config.section.cron: cron 設定例
+stock_alert_mail.admin.config.cron.description: 以下のコマンドを cron に登録してください。
+stock_alert_mail.admin.config.cron.note: 上記の例は毎時0分に実行します。
+stock_alert_mail.admin.config.unit: 個
+stock_alert_mail.admin.config.save: 保存
+stock_alert_mail.admin.config.required: 必須
+
+stock_alert_mail.form.threshold.label: 在庫アラート閾値
+stock_alert_mail.form.threshold.placeholder: '例: 5'
+stock_alert_mail.form.threshold.help: この個数以下になった商品をメールで通知します。
+stock_alert_mail.form.alert_emails.label: 通知先メールアドレス
+stock_alert_mail.form.alert_emails.placeholder: 空欄の場合は店舗設定のメールアドレスを使用します。複数の場合はカンマ区切り。
+
+stock_alert_mail.command.description: 在庫数が閾値以下の商品を管理者にメール通知します
+stock_alert_mail.command.config_not_found: プラグイン設定が見つかりません。プラグインを有効化してください。
+stock_alert_mail.command.no_alert_items: 新規の在庫アラート対象商品はありません。
+stock_alert_mail.command.alert_items_found: '%count% 件の新規在庫アラート対象商品が見つかりました。'
+stock_alert_mail.command.mail_sent: '在庫アラートメールを %emails% に送信しました。'
+stock_alert_mail.command.mail_failed: 'メール送信に失敗しました: %message%'
+stock_alert_mail.command.mail_subject: '[%shop_name%] 在庫アラート通知'
+
+stock_alert_mail.mail.greeting: '%shop_name% 管理者様'
+stock_alert_mail.mail.low_stock_intro: '在庫数が閾値（%threshold%個）以下の商品があります。'
+stock_alert_mail.mail.please_check: ご確認をお願いします。
+stock_alert_mail.mail.alert_title: '在庫アラート対象商品（%count%件）'
+stock_alert_mail.mail.current_stock: '現在の在庫数：%stock% 個'
+stock_alert_mail.mail.threshold_label: '閾値：%threshold% 個'
+stock_alert_mail.mail.restock_message: 在庫の補充をご検討ください。

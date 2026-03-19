@@ -1,21 +1,21 @@
-{{ BaseInfo.shopName }} 管理者様
+{{ 'stock_alert_mail.mail.greeting'|trans({'%shop_name%': BaseInfo.shopName}) }}
 
-在庫数が閾値（{{ threshold }}個）以下の商品があります。
-ご確認をお願いします。
+{{ 'stock_alert_mail.mail.low_stock_intro'|trans({'%threshold%': threshold}) }}
+{{ 'stock_alert_mail.mail.please_check'|trans }}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-在庫アラート対象商品（{{ lowStockItems|length }}件）
+{{ 'stock_alert_mail.mail.alert_title'|trans({'%count%': lowStockItems|length}) }}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 {% for item in lowStockItems %}
 ■ {{ item.Product.name }}{% if item.hasClassCategory1 %} [{{ item.ClassCategory1.name }}{% if item.hasClassCategory2 %} / {{ item.ClassCategory2.name }}{% endif %}]{% endif %}
 
-  現在の在庫数：{{ item.stock }} 個
-  閾値：{{ threshold }} 個
+  {{ 'stock_alert_mail.mail.current_stock'|trans({'%stock%': item.stock}) }}
+  {{ 'stock_alert_mail.mail.threshold_label'|trans({'%threshold%': threshold}) }}
 
 {% endfor %}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-在庫の補充をご検討ください。
+{{ 'stock_alert_mail.mail.restock_message'|trans }}
 
 {{ BaseInfo.shopName }}

@@ -27,7 +27,7 @@ class Nav implements EccubeNav
                 'children' => [
                     'stock_alert_config' => [
                         'id' => 'stock_alert_config',
-                        'name' => '在庫アラートメール設定',
+                        'name' => 'stock_alert_mail.nav.config',
                         'url' => 'stock_alert_mail_admin_config',
                     ],
                 ],

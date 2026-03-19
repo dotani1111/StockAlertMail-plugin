@@ -27,6 +27,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 class StockAlertCommand extends Command
@@ -43,6 +44,7 @@ class StockAlertCommand extends Command
         private readonly EntityManagerInterface $entityManager,
         private readonly MailerInterface $mailer,
         private readonly Environment $twig,
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct();
         $this->BaseInfo = $this->baseInfoRepository->get();
@@ -50,7 +52,7 @@ class StockAlertCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('在庫数が閾値以下の商品を管理者にメール通知します');
+        $this->setDescription($this->translator->trans('stock_alert_mail.command.description'));
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -59,7 +61,7 @@ class StockAlertCommand extends Command
 
         $config = $this->configRepository->findOneBy([]);
         if ($config === null) {
-            $io->error('プラグイン設定が見つかりません。プラグインを有効化してください。');
+            $io->error($this->translator->trans('stock_alert_mail.command.config_not_found'));
 
             return Command::FAILURE;
         }
@@ -100,12 +102,12 @@ class StockAlertCommand extends Command
         $this->entityManager->flush();
 
         if (empty($newAlertItems)) {
-            $io->success('新規の在庫アラート対象商品はありません。');
+            $io->success($this->translator->trans('stock_alert_mail.command.no_alert_items'));
 
             return Command::SUCCESS;
         }
 
-        $io->info(sprintf('%d 件の新規在庫アラート対象商品が見つかりました。', count($newAlertItems)));
+        $io->info($this->translator->trans('stock_alert_mail.command.alert_items_found', ['%count%' => count($newAlertItems)]));
 
         // メール送信
         $toEmails = $this->resolveToEmails($config);
@@ -116,7 +118,7 @@ class StockAlertCommand extends Command
         ]);
 
         $message = (new Email())
-            ->subject('['.$this->BaseInfo->getShopName().'] 在庫アラート通知')
+            ->subject($this->translator->trans('stock_alert_mail.command.mail_subject', ['%shop_name%' => $this->BaseInfo->getShopName()]))
             ->from(new Address($this->BaseInfo->getEmail01(), $this->BaseInfo->getShopName()))
             ->text($body);
 
@@ -126,9 +128,9 @@ class StockAlertCommand extends Command
 
         try {
             $this->mailer->send($message);
-            $io->success(sprintf('在庫アラートメールを %s に送信しました。', implode(', ', $toEmails)));
+            $io->success($this->translator->trans('stock_alert_mail.command.mail_sent', ['%emails%' => implode(', ', $toEmails)]));
         } catch (\Exception $e) {
-            $io->error('メール送信に失敗しました: '.$e->getMessage());
+            $io->error($this->translator->trans('stock_alert_mail.command.mail_failed', ['%message%' => $e->getMessage()]));
 
             return Command::FAILURE;
         }
