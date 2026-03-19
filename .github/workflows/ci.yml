@@ -16,14 +16,24 @@ on:
 
 jobs:
   test:
-    name: PHPUnit Tests (PHP ${{ matrix.php-version }}, ${{ matrix.database }})
+    name: PHPUnit Tests (EC-CUBE ${{ matrix.ec-cube-version }}, PHP ${{ matrix.php-version }}, ${{ matrix.database }})
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        php-version: ['8.1', '8.3']
-        ec-cube-version: ['4.2', '4.3']
-        database: ['mysql', 'postgresql']
+        include:
+          - ec-cube-version: '4.2'
+            php-version: '8.1'
+            database: 'mysql'
+          - ec-cube-version: '4.2'
+            php-version: '8.1'
+            database: 'postgresql'
+          - ec-cube-version: '4.3'
+            php-version: '8.3'
+            database: 'mysql'
+          - ec-cube-version: '4.3'
+            php-version: '8.3'
+            database: 'postgresql'
 
     services:
       mysql:
