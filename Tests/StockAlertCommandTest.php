@@ -46,15 +46,9 @@ class StockAlertCommandTest extends EccubeTestCase
 
     protected function tearDown(): void
     {
-        // ログを全削除
-        foreach ($this->logRepository->findAll() as $log) {
-            $this->entityManager->remove($log);
-        }
-        // 設定を全削除
-        foreach ($this->configRepository->findAll() as $config) {
-            $this->entityManager->remove($config);
-        }
-        $this->entityManager->flush();
+        // bootKernel()後にエンティティがdetachedになる場合があるためDQLで削除
+        $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertLog l')->execute();
+        $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
 
         parent::tearDown();
     }
