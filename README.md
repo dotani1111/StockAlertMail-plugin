@@ -18,7 +18,7 @@ cron で定期実行することで、在庫切れを見逃さない運用が可
 
 ## 対応バージョン
 
-- EC-CUBE 4.3.x
+- EC-CUBE 4.2.x 〜 4.3.x
 
 ## インストール方法
 
@@ -71,7 +71,7 @@ bin/console eccube:plugin:stock-alert-mail
 ### 必要な環境
 
 - PHP 8.1以上
-- EC-CUBE 4.3.x
+- EC-CUBE 4.2.x 〜 4.3.x
 - Composer
 
 ## ライセンス

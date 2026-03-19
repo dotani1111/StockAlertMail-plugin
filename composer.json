@@ -8,6 +8,6 @@
   },
   "extra": {
     "code": "StockAlertMail",
-    "supported-versions": ["4.3"]
+    "supported-versions": ["4.2", "4.3"]
   }
 }
