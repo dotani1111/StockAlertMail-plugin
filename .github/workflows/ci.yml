@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+    paths:
+      - '**'
+      - '!*.md'
+  pull_request:
+    paths:
+      - '**'
+      - '!*.md'
+
+jobs:
+  test:
+    name: PHPUnit Tests (PHP ${{ matrix.php-version }}, ${{ matrix.database }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.3']
+        ec-cube-version: ['4.3']
+        database: ['mysql', 'postgresql']
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: eccube_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: eccube_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+
+    steps:
+      - name: Checkout plugin repository
+        uses: actions/checkout@v6
+        with:
+          path: plugin
+
+      - name: Checkout EC-CUBE
+        uses: actions/checkout@v6
+        with:
+          repository: EC-CUBE/ec-cube
+          ref: ${{ matrix.ec-cube-version }}
+          path: eccube
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, pdo_mysql, pdo_pgsql, curl, zip, opcache
+          coverage: none
+
+      - name: Install EC-CUBE dependencies
+        working-directory: eccube
+        run: |
+          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Install plugin
+        run: |
+          mkdir -p eccube/app/Plugin/StockAlertMail
+          find plugin -mindepth 1 -maxdepth 1 ! -name '.github' ! -name '.git' -exec cp -r {} eccube/app/Plugin/StockAlertMail/ \;
+
+      - name: Setup database schema
+        working-directory: eccube
+        env:
+          APP_ENV: 'test'
+          DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql://root:root@127.0.0.1:3306/eccube_test' || 'postgresql://postgres:postgres@127.0.0.1:5432/eccube_test' }}
+          DATABASE_SERVER_VERSION: ${{ matrix.database == 'mysql' && '8.0' || '15' }}
+          DATABASE_CHARSET: ${{ matrix.database == 'mysql' && 'utf8mb4' || 'UTF8' }}
+          MAILER_DSN: 'smtp://127.0.0.1:1025'
+        run: |
+          php bin/console doctrine:database:create --if-not-exists
+          php bin/console doctrine:schema:create
+          php bin/console doctrine:migrations:migrate --no-interaction
+          php bin/console eccube:fixtures:load
+          php bin/console eccube:plugin:install --code=StockAlertMail
+          php bin/console eccube:plugin:enable --code=StockAlertMail
+
+      - name: Run PHPUnit tests
+        working-directory: eccube
+        env:
+          APP_ENV: 'test'
+          DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql://root:root@127.0.0.1:3306/eccube_test' || 'postgresql://postgres:postgres@127.0.0.1:5432/eccube_test' }}
+          DATABASE_SERVER_VERSION: ${{ matrix.database == 'mysql' && '8.0' || '15' }}
+          DATABASE_CHARSET: ${{ matrix.database == 'mysql' && 'utf8mb4' || 'UTF8' }}
+          MAILER_DSN: 'smtp://127.0.0.1:1025'
+        run: |
+          vendor/bin/phpunit --exclude-group cache-clear,cache-clear-install,update-schema-doctrine,plugin-service app/Plugin/StockAlertMail/Tests/
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: plugin-test-php${{ matrix.php-version }}-${{ matrix.database }}-logs
+          path: eccube/var/log/
+          retention-days: 7
+          if-no-files-found: ignore
