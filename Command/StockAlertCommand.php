@@ -153,7 +153,13 @@ class StockAlertCommand extends Command
     {
         $alertEmails = $config->getAlertEmails();
         if (!empty($alertEmails)) {
-            return array_filter(array_map('trim', explode(',', $alertEmails)));
+            $validated = array_filter(
+                array_map('trim', explode(',', $alertEmails)),
+                fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL) !== false
+            );
+            if (!empty($validated)) {
+                return array_values($validated);
+            }
         }
 
         return [$this->BaseInfo->getEmail01()];
@@ -161,12 +167,16 @@ class StockAlertCommand extends Command
 
     private function buildMailSubject($config): string
     {
-        $customSubject = $config->getMailSubject();
-        if (!empty($customSubject)) {
-            return strtr($customSubject, ['{shop_name}' => $this->BaseInfo->getShopName()]);
+        if (!empty($config->getMailSubject())) {
+            $subject = strtr($config->getMailSubject(), [
+                '{shop_name}' => $this->BaseInfo->getShopName(),
+            ]);
+        } else {
+            $subject = $this->translator->trans('stock_alert_mail.command.mail_subject', ['%shop_name%' => $this->BaseInfo->getShopName()]);
         }
 
-        return $this->translator->trans('stock_alert_mail.command.mail_subject', ['%shop_name%' => $this->BaseInfo->getShopName()]);
+        // プレースホルダー展開後の改行をサニタイズ（ヘッダーインジェクション対策）
+        return preg_replace('/[\r\n]+/', ' ', $subject);
     }
 
     private function buildMailBody($config, array $items, int $threshold): string

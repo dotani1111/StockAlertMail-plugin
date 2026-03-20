@@ -44,6 +44,9 @@ class StockAlertMailTemplateType extends AbstractType
             ->add('mailBody', TextareaType::class, [
                 'label' => 'stock_alert_mail.form.mail_body.label',
                 'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 10000]),
+                ],
                 'attr' => [
                     'rows' => 20,
                     'style' => 'font-family: monospace;',
