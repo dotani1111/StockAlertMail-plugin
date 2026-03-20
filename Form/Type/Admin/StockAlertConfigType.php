@@ -20,6 +20,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class StockAlertConfigType extends AbstractType
 {
@@ -41,6 +42,21 @@ class StockAlertConfigType extends AbstractType
             ->add('alertEmails', TextareaType::class, [
                 'label' => 'stock_alert_mail.form.alert_emails.label',
                 'required' => false,
+                'constraints' => [
+                    new Assert\Callback(function ($value, ExecutionContextInterface $context) {
+                        if (empty($value)) {
+                            return;
+                        }
+                        $emails = array_filter(array_map('trim', explode(',', $value)));
+                        foreach ($emails as $email) {
+                            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                                $context->buildViolation('「{{ value }}」は有効なメールアドレスではありません。')
+                                    ->setParameter('{{ value }}', $email)
+                                    ->addViolation();
+                            }
+                        }
+                    }),
+                ],
                 'attr' => [
                     'placeholder' => 'stock_alert_mail.form.alert_emails.placeholder',
                     'rows' => 3,

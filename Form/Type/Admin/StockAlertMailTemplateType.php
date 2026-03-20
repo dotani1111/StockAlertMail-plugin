@@ -19,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class StockAlertMailTemplateType extends AbstractType
 {
@@ -28,6 +29,14 @@ class StockAlertMailTemplateType extends AbstractType
             ->add('mailSubject', TextType::class, [
                 'label' => 'stock_alert_mail.form.mail_subject.label',
                 'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 500]),
+                    new Assert\Regex([
+                        'pattern' => '/[\r\n]/',
+                        'match' => false,
+                        'message' => '件名に改行を含めることはできません。',
+                    ]),
+                ],
                 'attr' => [
                     'placeholder' => 'stock_alert_mail.form.mail_subject.placeholder',
                 ],

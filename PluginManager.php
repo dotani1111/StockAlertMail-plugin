@@ -35,7 +35,8 @@ class PluginManager extends AbstractPluginManager
         // FK参照元のlogテーブルを先に削除する
         foreach (['plg_stock_alert_log', 'plg_stock_alert_config'] as $table) {
             if ($schemaManager->tablesExist([$table])) {
-                $conn->executeStatement("DROP TABLE {$table}");
+                $quotedTable = $conn->quoteIdentifier($table);
+                $conn->executeStatement("DROP TABLE {$quotedTable}");
             }
         }
     }
