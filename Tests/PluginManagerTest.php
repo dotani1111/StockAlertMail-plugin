@@ -106,6 +106,73 @@ class PluginManagerTest extends EccubeTestCase
     }
 
     /**
+     * install: エラーが発生せず、テーブルが存在すること。
+     */
+    public function testInstall()
+    {
+        $conn = $this->entityManager->getConnection();
+
+        // install() はテーブル作成の独自ロジックを持たないが、エラーが発生しないことを確認する
+        $this->pluginManager->install([], static::getContainer());
+
+        $this->assertTrue(
+            $conn->createSchemaManager()->tablesExist(['plg_stock_alert_config']),
+            'install後にplg_stock_alert_configテーブルが存在すること'
+        );
+        $this->assertTrue(
+            $conn->createSchemaManager()->tablesExist(['plg_stock_alert_log']),
+            'install後にplg_stock_alert_logテーブルが存在すること'
+        );
+    }
+
+    /**
+     * disable: 設定が保持されること（再enableで使い回せること）。
+     */
+    public function testDisable()
+    {
+        $existing = new StockAlertConfig();
+        $existing->setThreshold(42);
+        $existing->setCreateDate(new \DateTime());
+        $existing->setUpdateDate(new \DateTime());
+        $this->entityManager->persist($existing);
+        $this->entityManager->flush();
+
+        // disable() はデータ削除の独自ロジックを持たないが、エラーが発生せず設定が残ることを確認する
+        $this->pluginManager->disable([], static::getContainer());
+
+        $config = $this->configRepository->findOneBy([]);
+        $this->assertNotNull($config, 'disable後も設定が保持されること');
+        $this->assertSame(42, $config->getThreshold(), '設定値が変更されていないこと');
+    }
+
+    /**
+     * uninstall → enable: アンインストール後に再インストール（enable）できること。
+     */
+    public function testUninstallThenReinstall()
+    {
+        $this->pluginManager->uninstall([], static::getContainer());
+
+        $conn = $this->entityManager->getConnection();
+        $this->assertFalse(
+            $conn->createSchemaManager()->tablesExist(['plg_stock_alert_config']),
+            'アンインストール後にテーブルが削除されていること'
+        );
+
+        // テーブルを再作成（eccube:plugin:install 相当）
+        $this->recreateTablesIfNeeded();
+
+        // EntityManagerのキャッシュをクリア
+        $this->entityManager->clear();
+
+        // 再enableできること
+        $this->pluginManager->enable([], static::getContainer());
+
+        $config = $this->configRepository->findOneBy([]);
+        $this->assertNotNull($config, '再enable後に設定が作成されること');
+        $this->assertSame(5, $config->getThreshold(), '初期閾値が5であること');
+    }
+
+    /**
      * uninstallテストでテーブルが削除されている場合に再作成する。
      */
     private function recreateTablesIfNeeded(): void
