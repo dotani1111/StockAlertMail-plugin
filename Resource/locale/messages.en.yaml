@@ -46,7 +46,7 @@ stock_alert_mail.mail.current_stock: 'Current Stock: %stock% unit(s)'
 stock_alert_mail.mail.threshold_label: 'Threshold: %threshold% unit(s)'
 stock_alert_mail.mail.restock_message: Please consider restocking these items.
 
-stock_alert_mail.nav.title: Stock Alert Mail
+stock_alert_mail.nav.title: Stock Alert
 stock_alert_mail.nav.config: Settings
 stock_alert_mail.nav.mail_template: Mail Template
 stock_alert_mail.nav.log: Send History
