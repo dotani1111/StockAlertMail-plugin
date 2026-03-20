@@ -59,6 +59,17 @@ stock_alert_mail.admin.mail_template.placeholder.col.key: プレースホルダ�
 stock_alert_mail.admin.mail_template.placeholder.col.description: 内容
 stock_alert_mail.admin.mail_template.placeholder.col.subject: 件名で使用可
 
+stock_alert_mail.admin.mail_template.send_test.button: テストメール送信
+stock_alert_mail.admin.mail_template.send_test.confirm: テストメールを送信しますか？（ダミーの商品データで送信されます）
+stock_alert_mail.admin.mail_template.send_test.success: 'テストメールを %emails% に送信しました。'
+stock_alert_mail.admin.mail_template.send_test.failed: 'テストメール送信に失敗しました: %message%'
+stock_alert_mail.admin.mail_template.send_test.config_not_found: 設定が保存されていません。先に設定画面で保存してください。
+
+stock_alert_mail.test.dummy_product_a: サンプル商品A
+stock_alert_mail.test.dummy_product_b: サンプル商品B
+stock_alert_mail.test.dummy_class1: レッド
+stock_alert_mail.test.dummy_class2: Mサイズ
+
 stock_alert_mail.admin.log.title: 送信履歴
 stock_alert_mail.admin.log.section: アラート送信済み商品
 stock_alert_mail.admin.log.empty: 送信履歴はありません。

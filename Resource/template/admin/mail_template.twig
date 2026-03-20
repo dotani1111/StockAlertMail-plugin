@@ -91,6 +91,18 @@
 
             </form>
 
+            <form method="post" action="{{ path('stock_alert_mail_admin_mail_template_send_test') }}" class="mt-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('stock_alert_mail_send_test') }}">
+                <div class="row">
+                    <div class="col-12 text-right">
+                        <button type="submit" class="btn btn-ec-regular"
+                                onclick="return confirm('{{ 'stock_alert_mail.admin.mail_template.send_test.confirm'|trans }}')">
+                            <i class="fa fa-paper-plane mr-1"></i>{{ 'stock_alert_mail.admin.mail_template.send_test.button'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

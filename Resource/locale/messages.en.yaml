@@ -59,6 +59,17 @@ stock_alert_mail.admin.mail_template.placeholder.col.key: Placeholder
 stock_alert_mail.admin.mail_template.placeholder.col.description: Description
 stock_alert_mail.admin.mail_template.placeholder.col.subject: Usable in Subject
 
+stock_alert_mail.admin.mail_template.send_test.button: Send Test Email
+stock_alert_mail.admin.mail_template.send_test.confirm: Send a test email? (Uses dummy product data)
+stock_alert_mail.admin.mail_template.send_test.success: 'Test email sent to %emails%.'
+stock_alert_mail.admin.mail_template.send_test.failed: 'Failed to send test email: %message%'
+stock_alert_mail.admin.mail_template.send_test.config_not_found: Settings not found. Please save settings first.
+
+stock_alert_mail.test.dummy_product_a: Sample Product A
+stock_alert_mail.test.dummy_product_b: Sample Product B
+stock_alert_mail.test.dummy_class1: Red
+stock_alert_mail.test.dummy_class2: Size M
+
 stock_alert_mail.admin.log.title: Send History
 stock_alert_mail.admin.log.section: Alerted Products
 stock_alert_mail.admin.log.empty: No send history found.
