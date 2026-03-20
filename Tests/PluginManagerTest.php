@@ -199,8 +199,9 @@ class PluginManagerTest extends EccubeTestCase
         // テーブルを再作成（eccube:plugin:install 相当）
         $this->recreateTablesIfNeeded();
 
-        // EntityManagerのキャッシュをクリア
-        $this->entityManager->clear();
+        // DDL 後に DBAL のトランザクション状態を MySQL の実態に合わせる
+        // （enable() 内の flush() が beginTransaction/commit を正常に実行できるようにする）
+        $this->resyncTransactionState($conn);
 
         // 再enableできること
         $this->pluginManager->enable([], static::getContainer());
