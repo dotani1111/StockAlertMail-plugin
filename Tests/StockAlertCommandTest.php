@@ -34,11 +34,19 @@ class StockAlertCommandTest extends EccubeTestCase
     /** @var StockAlertLogRepository */
     private $logRepository;
 
+    /** @var CommandTester */
+    private $commandTester;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->configRepository = $this->entityManager->getRepository(StockAlertConfig::class);
         $this->logRepository = $this->entityManager->getRepository(StockAlertLog::class);
+
+        // setUp済みのカーネルをそのまま使い、再ブートによるEntityManager無効化を防ぐ
+        $application = new Application(static::$kernel);
+        $command = $application->find('eccube:plugin:stock-alert-mail');
+        $this->commandTester = new CommandTester($command);
 
         // 初期設定を作成（threshold=9999 で全商品をアラート対象にする）
         $config = new StockAlertConfig();
@@ -51,7 +59,6 @@ class StockAlertCommandTest extends EccubeTestCase
 
     protected function tearDown(): void
     {
-        // bootKernel()後にエンティティがdetachedになる場合があるためDQLで削除
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertLog l')->execute();
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
 
@@ -60,29 +67,19 @@ class StockAlertCommandTest extends EccubeTestCase
 
     public function testCommandSuccess()
     {
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
+        $this->commandTester->execute([]);
 
-        $command = $application->find('eccube:plugin:stock-alert-mail');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute([]);
-
-        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode());
     }
 
     public function testNoDuplicateSend()
     {
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
-        $command = $application->find('eccube:plugin:stock-alert-mail');
-        $commandTester = new CommandTester($command);
-
         // 1回目実行
-        $commandTester->execute([]);
+        $this->commandTester->execute([]);
         $logCount = count($this->logRepository->findAll());
 
         // 2回目実行してもログが増えないことを確認
-        $commandTester->execute([]);
+        $this->commandTester->execute([]);
         $this->assertSame($logCount, count($this->logRepository->findAll()));
     }
 
@@ -91,13 +88,9 @@ class StockAlertCommandTest extends EccubeTestCase
         // 在庫100〜999の商品を作成（threshold=9999 なのでアラート対象になる）
         $this->createProduct();
 
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
-        $command = $application->find('eccube:plugin:stock-alert-mail');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute([]);
+        $this->commandTester->execute([]);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
@@ -111,26 +104,21 @@ class StockAlertCommandTest extends EccubeTestCase
 
     public function testNoMailWhenNoLowStock()
     {
-        // threshold=0 に変更（商品の在庫は100以上なので対象外）
+        // threshold=-1 に変更（stock は 0 以上なので対象外）
         $config = $this->configRepository->findOneBy([]);
-        $config->setThreshold(0);
+        $config->setThreshold(-1);
         $this->entityManager->flush();
 
         $this->createProduct();
 
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
-        $command = $application->find('eccube:plugin:stock-alert-mail');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute([]);
+        $this->commandTester->execute([]);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode());
         $this->assertEmailCount(0);
     }
 
     public function testStockRecoveryResetsLog()
     {
-        // 在庫がある商品を作成してアラートログを記録
         $product = $this->createProduct();
         $productClass = $product->getProductClasses()->filter(
             fn ($pc) => !$pc->isStockUnlimited() && $pc->isVisible()
@@ -147,18 +135,14 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->entityManager->persist($log);
         $this->entityManager->flush();
 
-        // threshold=0 に変更（商品の在庫は回復済み扱い）
+        // threshold=-1 に変更（在庫回復済み扱い）
         $config = $this->configRepository->findOneBy([]);
-        $config->setThreshold(0);
+        $config->setThreshold(-1);
         $this->entityManager->flush();
 
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
-        $command = $application->find('eccube:plugin:stock-alert-mail');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute([]);
+        $this->commandTester->execute([]);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode());
         // 在庫回復によりログが削除されていること
         $this->assertNull($this->logRepository->findOneBy(['ProductClass' => $productClass]));
     }
