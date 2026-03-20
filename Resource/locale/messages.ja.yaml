@@ -33,3 +33,7 @@ stock_alert_mail.mail.alert_title: '在庫アラート対象商品（%count%件�
 stock_alert_mail.mail.current_stock: '現在の在庫数：%stock% 個'
 stock_alert_mail.mail.threshold_label: '閾値：%threshold% 個'
 stock_alert_mail.mail.restock_message: 在庫の補充をご検討ください。
+
+stock_alert_mail.nav.title: 在庫アラートメール
+stock_alert_mail.nav.config: 設定
+stock_alert_mail.nav.log: 送信履歴
