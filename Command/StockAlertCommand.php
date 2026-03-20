@@ -118,16 +118,16 @@ class StockAlertCommand extends Command
         $body = $this->buildMailBody($config, $newAlertItems, $threshold);
         $subject = $this->buildMailSubject($config);
 
-        $message = (new Email())
-            ->subject($subject)
-            ->from(new Address($this->BaseInfo->getEmail01(), $this->BaseInfo->getShopName()))
-            ->text($body);
-
-        foreach ($toEmails as $email) {
-            $message->addTo($email);
-        }
-
         try {
+            $message = (new Email())
+                ->subject($subject)
+                ->from(new Address($this->BaseInfo->getEmail01(), $this->BaseInfo->getShopName()))
+                ->text($body);
+
+            foreach ($toEmails as $email) {
+                $message->addTo($email);
+            }
+
             $this->mailer->send($message);
 
             // 送信成功後にアラートログを永続化
