@@ -28,7 +28,16 @@ class PluginManager extends AbstractPluginManager
 
     public function uninstall(array $meta, ContainerInterface $container): void
     {
-        // テーブルはマイグレーションで管理するため、ここでは何もしない
+        $entityManager = $container->get('doctrine')->getManager();
+        $conn = $entityManager->getConnection();
+        $schemaManager = $conn->createSchemaManager();
+
+        // FK参照元のlogテーブルを先に削除する
+        foreach (['plg_stock_alert_log', 'plg_stock_alert_config'] as $table) {
+            if ($schemaManager->tablesExist([$table])) {
+                $conn->executeStatement("DROP TABLE {$table}");
+            }
+        }
     }
 
     private function createInitialConfig(EntityManagerInterface $entityManager): void
