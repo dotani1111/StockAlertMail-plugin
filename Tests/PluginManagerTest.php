@@ -41,17 +41,47 @@ class PluginManagerTest extends EccubeTestCase
         // uninstallテストでテーブルが削除されている場合は再作成する
         $this->recreateTablesIfNeeded();
 
-        // MySQL では DROP TABLE/CREATE TABLE（DDL）が暗黙的にコミットするため
-        // parent::tearDown() のロールバックが失敗しないよう、トランザクションを再開始する
+        // MySQL では DDL (DROP TABLE/CREATE TABLE) が暗黙コミットを引き起こし、
+        // DBAL の内部トランザクションカウンターと MySQL の実際の状態がズレる。
+        // parent::tearDown() が rollBack() を呼ぶ際に PDOException が発生しないよう、
+        // DBAL の状態を MySQL の実際の状態に同期させ、新しいトランザクションを開始する。
         $conn = $this->entityManager->getConnection();
-        if (!$conn->isTransactionActive()) {
-            $this->entityManager->clear();
-            $conn->beginTransaction();
-        }
+        $this->resyncTransactionState($conn);
 
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
 
         parent::tearDown();
+    }
+
+    /**
+     * DDL 実行後に DBAL のトランザクション状態を MySQL の実態に合わせる。
+     *
+     * MySQL の DDL は暗黙コミットを引き起こすため、DBAL が「レベル=1」と
+     * 認識していても MySQL にはトランザクションが存在しない場合がある。
+     * その状態のまま rollBack() を呼ぶと PDO が例外を投げるため、
+     * 一旦ロールバック（失敗しても DBAL レベルはリセット済み）してから
+     * 新しいトランザクションを開始し直す。
+     */
+    private function resyncTransactionState(\Doctrine\DBAL\Connection $conn): void
+    {
+        // DBAL のレベルを 0 に戻す（DDL で暗黙コミット済みなら PDO 例外をキャッチ）
+        while ($conn->isTransactionActive()) {
+            try {
+                $conn->rollBack();
+            } catch (\Exception $ignored) {
+                // DDL が MySQL のトランザクションをコミットした場合、
+                // DBAL は rollBack() 内でレベルを 0 にセットしてから PDO を呼ぶため
+                // このキャッチ後は isTransactionActive() = false になる
+                break;
+            }
+        }
+
+        // EntityManager のキャッシュをクリアして整合性を保つ
+        $this->entityManager->clear();
+
+        // parent::tearDown() が rollBack() を期待する実装でも動作するよう
+        // 新しいトランザクションを開始しておく
+        $conn->beginTransaction();
     }
 
     /**
