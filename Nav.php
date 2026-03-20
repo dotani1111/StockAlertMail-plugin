@@ -20,7 +20,7 @@ class Nav implements EccubeNav
     /**
      * @return array
      */
-    public static function getNav()
+    public static function getNav(): array
     {
         return [
             'stock_alert_mail' => [

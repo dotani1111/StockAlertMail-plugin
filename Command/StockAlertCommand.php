@@ -15,6 +15,7 @@ namespace Plugin\StockAlertMail\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\BaseInfo;
+use Eccube\Entity\Master\ProductStatus;
 use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\ProductClassRepository;
 use Plugin\StockAlertMail\Entity\StockAlertLog;
@@ -47,7 +48,6 @@ class StockAlertCommand extends Command
         private readonly TranslatorInterface $translator,
     ) {
         parent::__construct();
-        $this->BaseInfo = $this->baseInfoRepository->get();
     }
 
     protected function configure(): void
@@ -58,6 +58,7 @@ class StockAlertCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $this->BaseInfo = $this->baseInfoRepository->get();
 
         $config = $this->configRepository->findOneBy([]);
         if ($config === null) {
@@ -74,31 +75,34 @@ class StockAlertCommand extends Command
             ->innerJoin('pc.Product', 'p')
             ->where('pc.stock_unlimited = false')
             ->andWhere('pc.visible = true')
-            ->andWhere('p.Status = 1')
+            ->andWhere('p.Status = :status')
+            ->setParameter('status', ProductStatus::DISPLAY_SHOW)
             ->getQuery()
             ->getResult();
+
+        // 既存ログを一括取得してマップ化（N+1回避）
+        $existingLogs = $this->logRepository->findAll();
+        $logMap = [];
+        foreach ($existingLogs as $log) {
+            $logMap[$log->getProductClass()->getId()] = $log;
+        }
 
         $newAlertItems = [];
 
         foreach ($allItems as $productClass) {
             $isLowStock = $productClass->getStock() <= $threshold;
-            $log = $this->logRepository->findOneBy(['ProductClass' => $productClass]);
+            $log = $logMap[$productClass->getId()] ?? null;
 
             if ($isLowStock && $log === null) {
                 // 閾値以下 かつ 未送信 → アラート対象
                 $newAlertItems[] = $productClass;
-
-                // ログに記録
-                $newLog = new StockAlertLog();
-                $newLog->setProductClass($productClass);
-                $newLog->setAlertedAt(new \DateTime());
-                $this->entityManager->persist($newLog);
             } elseif (!$isLowStock && $log !== null) {
                 // 在庫が回復 → ログを削除してリセット
                 $this->entityManager->remove($log);
             }
         }
 
+        // 回復した商品のログ削除を反映
         $this->entityManager->flush();
 
         if (empty($newAlertItems)) {
@@ -125,6 +129,16 @@ class StockAlertCommand extends Command
 
         try {
             $this->mailer->send($message);
+
+            // 送信成功後にアラートログを永続化
+            foreach ($newAlertItems as $productClass) {
+                $newLog = new StockAlertLog();
+                $newLog->setProductClass($productClass);
+                $newLog->setAlertedAt(new \DateTime());
+                $this->entityManager->persist($newLog);
+            }
+            $this->entityManager->flush();
+
             $io->success($this->translator->trans('stock_alert_mail.command.mail_sent', ['%emails%' => implode(', ', $toEmails)]));
         } catch (\Exception $e) {
             $io->error($this->translator->trans('stock_alert_mail.command.mail_failed', ['%message%' => $e->getMessage()]));

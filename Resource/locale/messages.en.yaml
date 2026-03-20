@@ -10,6 +10,7 @@ stock_alert_mail.admin.config.cron.description: Register the following command i
 stock_alert_mail.admin.config.cron.note: The example above runs at every hour on the minute.
 stock_alert_mail.admin.config.unit: unit(s)
 stock_alert_mail.admin.config.save: Save
+stock_alert_mail.admin.config.save_success: Saved successfully.
 stock_alert_mail.admin.config.required: Required
 stock_alert_mail.admin.config.section.mail_template: Mail Template
 stock_alert_mail.admin.config.mail_template.description: If left empty, the default template will be used.

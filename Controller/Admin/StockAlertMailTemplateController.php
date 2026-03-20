@@ -19,6 +19,7 @@ use Plugin\StockAlertMail\Form\Type\Admin\StockAlertMailTemplateType;
 use Plugin\StockAlertMail\Repository\StockAlertConfigRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StockAlertMailTemplateController extends AbstractController
@@ -33,7 +34,7 @@ class StockAlertMailTemplateController extends AbstractController
      *
      * @Template("@StockAlertMail/admin/mail_template.twig")
      */
-    public function index(Request $request): array
+    public function index(Request $request): array|Response
     {
         $config = $this->configRepository->findOneBy([]);
         if ($config === null) {
@@ -49,7 +50,7 @@ class StockAlertMailTemplateController extends AbstractController
             $this->entityManager->persist($config);
             $this->entityManager->flush();
 
-            $this->addSuccess('保存しました。', 'admin');
+            $this->addSuccess('stock_alert_mail.admin.config.save_success', 'admin');
 
             return $this->redirectToRoute('stock_alert_mail_admin_mail_template');
         }

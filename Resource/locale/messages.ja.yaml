@@ -10,6 +10,7 @@ stock_alert_mail.admin.config.cron.description: 以下のコマンドを cron �
 stock_alert_mail.admin.config.cron.note: 上記の例は毎時0分に実行します。
 stock_alert_mail.admin.config.unit: 個
 stock_alert_mail.admin.config.save: 保存
+stock_alert_mail.admin.config.save_success: 保存しました。
 stock_alert_mail.admin.config.required: 必須
 stock_alert_mail.admin.config.section.mail_template: メールテンプレート
 stock_alert_mail.admin.config.mail_template.description: 空欄の場合はデフォルトのテンプレートを使用します。
