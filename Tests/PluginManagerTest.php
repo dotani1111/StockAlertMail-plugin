@@ -41,6 +41,14 @@ class PluginManagerTest extends EccubeTestCase
         // uninstallテストでテーブルが削除されている場合は再作成する
         $this->recreateTablesIfNeeded();
 
+        // MySQL では DROP TABLE/CREATE TABLE（DDL）が暗黙的にコミットするため
+        // parent::tearDown() のロールバックが失敗しないよう、トランザクションを再開始する
+        $conn = $this->entityManager->getConnection();
+        if (!$conn->isTransactionActive()) {
+            $this->entityManager->clear();
+            $conn->beginTransaction();
+        }
+
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
 
         parent::tearDown();
