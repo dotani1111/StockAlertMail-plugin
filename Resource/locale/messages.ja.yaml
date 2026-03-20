@@ -60,7 +60,7 @@ stock_alert_mail.admin.mail_template.placeholder.col.description: 内容
 stock_alert_mail.admin.mail_template.placeholder.col.subject: 件名で使用可
 
 stock_alert_mail.admin.log.title: 送信履歴
-stock_alert_mail.admin.log.section: アラートメール送信済み商品
+stock_alert_mail.admin.log.section: アラート送信済み商品
 stock_alert_mail.admin.log.empty: 送信履歴はありません。
 stock_alert_mail.admin.log.col.product: 商品名
 stock_alert_mail.admin.log.col.class: 規格
