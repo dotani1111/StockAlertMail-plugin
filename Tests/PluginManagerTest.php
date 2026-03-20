@@ -226,6 +226,8 @@ class PluginManagerTest extends EccubeTestCase
             $table->addColumn('id', 'integer', ['unsigned' => true, 'autoincrement' => true]);
             $table->addColumn('threshold', 'integer', ['default' => 5]);
             $table->addColumn('alert_emails', 'string', ['length' => 1000, 'notnull' => false]);
+            $table->addColumn('mail_subject', 'string', ['length' => 500, 'notnull' => false]);
+            $table->addColumn('mail_body', 'text', ['notnull' => false]);
             $table->addColumn('create_date', 'datetimetz');
             $table->addColumn('update_date', 'datetimetz');
             $table->setPrimaryKey(['id']);

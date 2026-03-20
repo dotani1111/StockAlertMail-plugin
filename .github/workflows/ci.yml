@@ -158,6 +158,7 @@ jobs:
           php bin/console eccube:fixtures:load
           php bin/console eccube:plugin:install --code=StockAlertMail
           php bin/console eccube:plugin:enable --code=StockAlertMail
+          php bin/console eccube:plugin:schema-update --code=StockAlertMail
 
       - name: Run PHPUnit tests
         working-directory: eccube
