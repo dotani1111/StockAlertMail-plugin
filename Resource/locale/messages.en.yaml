@@ -47,7 +47,16 @@ stock_alert_mail.mail.restock_message: Please consider restocking these items.
 
 stock_alert_mail.nav.title: Stock Alert Mail
 stock_alert_mail.nav.config: Settings
+stock_alert_mail.nav.mail_template: Mail Template
 stock_alert_mail.nav.log: Send History
+
+stock_alert_mail.admin.mail_template.title: Mail Template
+stock_alert_mail.admin.mail_template.section.placeholders: Available Placeholders
+stock_alert_mail.admin.mail_template.section.template: Edit Template
+stock_alert_mail.admin.mail_template.placeholder.description: The following placeholders can be used in the template.
+stock_alert_mail.admin.mail_template.placeholder.col.key: Placeholder
+stock_alert_mail.admin.mail_template.placeholder.col.description: Description
+stock_alert_mail.admin.mail_template.placeholder.col.subject: Usable in Subject
 
 stock_alert_mail.admin.log.title: Send History
 stock_alert_mail.admin.log.section: Alerted Products

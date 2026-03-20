@@ -53,43 +53,6 @@
 
                 <div class="card rounded border-0 mb-4">
                     <div class="card-header">
-                        <span>{{ 'stock_alert_mail.admin.config.section.mail_template'|trans }}</span>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted mb-3">{{ 'stock_alert_mail.admin.config.mail_template.description'|trans }}</p>
-                        <p class="mb-1"><strong>{{ 'stock_alert_mail.admin.config.mail_template.placeholders'|trans }}</strong></p>
-                        <ul class="mb-3">
-                            <li><code>{shop_name}</code> … {{ 'stock_alert_mail.admin.config.mail_template.placeholder.shop_name'|trans }}</li>
-                            <li><code>{threshold}</code> … {{ 'stock_alert_mail.admin.config.mail_template.placeholder.threshold'|trans }}</li>
-                            <li><code>{items}</code> … {{ 'stock_alert_mail.admin.config.mail_template.placeholder.items'|trans }}（件名には使えません）</li>
-                        </ul>
-
-                        <div class="row mb-3">
-                            <div class="col-3">
-                                <label class="col-form-label">{{ form_label(form.mailSubject) }}</label>
-                            </div>
-                            <div class="col-9">
-                                {{ form_widget(form.mailSubject, {'attr': {'class': 'form-control'}}) }}
-                                <small class="form-text text-muted">{{ 'stock_alert_mail.admin.config.mail_template.subject_help'|trans }}</small>
-                                {{ form_errors(form.mailSubject) }}
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-3">
-                                <label class="col-form-label">{{ form_label(form.mailBody) }}</label>
-                            </div>
-                            <div class="col-9">
-                                {{ form_widget(form.mailBody, {'attr': {'class': 'form-control'}}) }}
-                                <small class="form-text text-muted">{{ 'stock_alert_mail.admin.config.mail_template.body_help'|trans }}</small>
-                                {{ form_errors(form.mailBody) }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card rounded border-0 mb-4">
-                    <div class="card-header">
                         <span>{{ 'stock_alert_mail.admin.config.section.cron'|trans }}</span>
                     </div>
                     <div class="card-body">

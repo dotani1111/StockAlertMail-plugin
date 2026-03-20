@@ -47,7 +47,16 @@ stock_alert_mail.mail.restock_message: 在庫の補充をご検討ください�
 
 stock_alert_mail.nav.title: 在庫アラートメール
 stock_alert_mail.nav.config: 設定
+stock_alert_mail.nav.mail_template: メールテンプレート
 stock_alert_mail.nav.log: 送信履歴
+
+stock_alert_mail.admin.mail_template.title: メールテンプレート
+stock_alert_mail.admin.mail_template.section.placeholders: 使用可能なプレースホルダー
+stock_alert_mail.admin.mail_template.section.template: テンプレート編集
+stock_alert_mail.admin.mail_template.placeholder.description: 以下のプレースホルダーをテンプレート内で使用できます。
+stock_alert_mail.admin.mail_template.placeholder.col.key: プレースホルダー
+stock_alert_mail.admin.mail_template.placeholder.col.description: 内容
+stock_alert_mail.admin.mail_template.placeholder.col.subject: 件名で使用可
 
 stock_alert_mail.admin.log.title: 送信履歴
 stock_alert_mail.admin.log.section: アラートメール送信済み商品
