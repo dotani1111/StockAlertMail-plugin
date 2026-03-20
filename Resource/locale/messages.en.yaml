@@ -11,12 +11,23 @@ stock_alert_mail.admin.config.cron.note: The example above runs at every hour on
 stock_alert_mail.admin.config.unit: unit(s)
 stock_alert_mail.admin.config.save: Save
 stock_alert_mail.admin.config.required: Required
+stock_alert_mail.admin.config.section.mail_template: Mail Template
+stock_alert_mail.admin.config.mail_template.description: If left empty, the default template will be used.
+stock_alert_mail.admin.config.mail_template.placeholders: Available placeholders
+stock_alert_mail.admin.config.mail_template.placeholder.shop_name: Shop name
+stock_alert_mail.admin.config.mail_template.placeholder.threshold: Threshold (units)
+stock_alert_mail.admin.config.mail_template.placeholder.items: List of low-stock products
+stock_alert_mail.admin.config.mail_template.subject_help: 'Default if empty: [{shop_name}] Stock Alert Notification'
+stock_alert_mail.admin.config.mail_template.body_help: If empty, the default body will be used.
 
 stock_alert_mail.form.threshold.label: Stock Alert Threshold
 stock_alert_mail.form.threshold.placeholder: 'e.g. 5'
 stock_alert_mail.form.threshold.help: Products at or below this quantity will trigger an email notification.
 stock_alert_mail.form.alert_emails.label: Notification Email Address(es)
 stock_alert_mail.form.alert_emails.placeholder: If empty, the store email address will be used. Separate multiple addresses with commas.
+stock_alert_mail.form.mail_subject.label: Mail Subject
+stock_alert_mail.form.mail_subject.placeholder: '[{shop_name}] Stock Alert Notification'
+stock_alert_mail.form.mail_body.label: Mail Body
 
 stock_alert_mail.command.description: Notifies the administrator by email when stock falls below the threshold
 stock_alert_mail.command.config_not_found: Plugin configuration not found. Please enable the plugin.

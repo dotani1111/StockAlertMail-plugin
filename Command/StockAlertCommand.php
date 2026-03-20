@@ -111,14 +111,11 @@ class StockAlertCommand extends Command
 
         // メール送信
         $toEmails = $this->resolveToEmails($config);
-        $body = $this->twig->render('@StockAlertMail/Mail/stock_alert.twig', [
-            'BaseInfo' => $this->BaseInfo,
-            'lowStockItems' => $newAlertItems,
-            'threshold' => $threshold,
-        ]);
+        $body = $this->buildMailBody($config, $newAlertItems, $threshold);
+        $subject = $this->buildMailSubject($config);
 
         $message = (new Email())
-            ->subject($this->translator->trans('stock_alert_mail.command.mail_subject', ['%shop_name%' => $this->BaseInfo->getShopName()]))
+            ->subject($subject)
             ->from(new Address($this->BaseInfo->getEmail01(), $this->BaseInfo->getShopName()))
             ->text($body);
 
@@ -146,5 +143,49 @@ class StockAlertCommand extends Command
         }
 
         return [$this->BaseInfo->getEmail01()];
+    }
+
+    private function buildMailSubject($config): string
+    {
+        $customSubject = $config->getMailSubject();
+        if (!empty($customSubject)) {
+            return strtr($customSubject, ['{shop_name}' => $this->BaseInfo->getShopName()]);
+        }
+
+        return $this->translator->trans('stock_alert_mail.command.mail_subject', ['%shop_name%' => $this->BaseInfo->getShopName()]);
+    }
+
+    private function buildMailBody($config, array $items, int $threshold): string
+    {
+        $customBody = $config->getMailBody();
+        if (!empty($customBody)) {
+            $itemLines = [];
+            foreach ($items as $productClass) {
+                $name = $productClass->getProduct()->getName();
+                if ($productClass->hasClassCategory1()) {
+                    $name .= ' ['.$productClass->getClassCategory1()->getName();
+                    if ($productClass->hasClassCategory2()) {
+                        $name .= ' / '.$productClass->getClassCategory2()->getName();
+                    }
+                    $name .= ']';
+                }
+                $itemLines[] = '■ '.$name;
+                $itemLines[] = '  '.$this->translator->trans('stock_alert_mail.mail.current_stock', ['%stock%' => $productClass->getStock()]);
+                $itemLines[] = '  '.$this->translator->trans('stock_alert_mail.mail.threshold_label', ['%threshold%' => $threshold]);
+                $itemLines[] = '';
+            }
+
+            return strtr($customBody, [
+                '{shop_name}' => $this->BaseInfo->getShopName(),
+                '{threshold}' => $threshold,
+                '{items}' => implode("\n", $itemLines),
+            ]);
+        }
+
+        return $this->twig->render('@StockAlertMail/Mail/stock_alert.twig', [
+            'BaseInfo' => $this->BaseInfo,
+            'lowStockItems' => $items,
+            'threshold' => $threshold,
+        ]);
     }
 }

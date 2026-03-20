@@ -11,12 +11,23 @@ stock_alert_mail.admin.config.cron.note: 上記の例は毎時0分に実行し�
 stock_alert_mail.admin.config.unit: 個
 stock_alert_mail.admin.config.save: 保存
 stock_alert_mail.admin.config.required: 必須
+stock_alert_mail.admin.config.section.mail_template: メールテンプレート
+stock_alert_mail.admin.config.mail_template.description: 空欄の場合はデフォルトのテンプレートを使用します。
+stock_alert_mail.admin.config.mail_template.placeholders: 使用可能なプレースホルダー
+stock_alert_mail.admin.config.mail_template.placeholder.shop_name: 店舗名
+stock_alert_mail.admin.config.mail_template.placeholder.threshold: 閾値（個）
+stock_alert_mail.admin.config.mail_template.placeholder.items: 在庫アラート対象商品の一覧
+stock_alert_mail.admin.config.mail_template.subject_help: '空欄の場合のデフォルト: [{shop_name}] 在庫アラート通知'
+stock_alert_mail.admin.config.mail_template.body_help: 空欄の場合はデフォルトの本文を使用します。
 
 stock_alert_mail.form.threshold.label: 在庫アラート閾値
 stock_alert_mail.form.threshold.placeholder: '例: 5'
 stock_alert_mail.form.threshold.help: この個数以下になった商品をメールで通知します。
 stock_alert_mail.form.alert_emails.label: 通知先メールアドレス
 stock_alert_mail.form.alert_emails.placeholder: 空欄の場合は店舗設定のメールアドレスを使用します。複数の場合はカンマ区切り。
+stock_alert_mail.form.mail_subject.label: メール件名
+stock_alert_mail.form.mail_subject.placeholder: '[{shop_name}] 在庫アラート通知'
+stock_alert_mail.form.mail_body.label: メール本文
 
 stock_alert_mail.command.description: 在庫数が閾値以下の商品を管理者にメール通知します
 stock_alert_mail.command.config_not_found: プラグイン設定が見つかりません。プラグインを有効化してください。
