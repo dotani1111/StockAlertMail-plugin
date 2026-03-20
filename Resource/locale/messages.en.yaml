@@ -2,7 +2,7 @@
 # StockAlertMail Plugin
 #====================================================================================
 
-stock_alert_mail.admin.config.title: Stock Alert Mail Settings
+stock_alert_mail.admin.config.title: Stock Alert Settings
 stock_alert_mail.admin.config.subtitle: Plugin Settings
 stock_alert_mail.admin.config.section.alert: Alert Settings
 stock_alert_mail.admin.config.section.cron: Cron Configuration Example
