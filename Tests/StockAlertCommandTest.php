@@ -43,6 +43,10 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->configRepository = $this->entityManager->getRepository(StockAlertConfig::class);
         $this->logRepository = $this->entityManager->getRepository(StockAlertLog::class);
 
+        // eccube:plugin:install で作成された初期設定も含め全データをクリーンアップ
+        $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertLog l')->execute();
+        $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
+
         // setUp済みのカーネルをそのまま使い、再ブートによるEntityManager無効化を防ぐ
         $application = new Application(static::$kernel);
         $command = $application->find('eccube:plugin:stock-alert-mail');
