@@ -33,7 +33,6 @@ class PluginManagerTest extends EccubeTestCase
         $this->configRepository = $this->entityManager->getRepository(StockAlertConfig::class);
         $this->pluginManager = new PluginManager();
 
-        // 既存設定をクリーンアップ
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
     }
 
@@ -47,7 +46,10 @@ class PluginManagerTest extends EccubeTestCase
         parent::tearDown();
     }
 
-    public function testEnableCreatesInitialConfig()
+    /**
+     * enable: 初期設定（threshold=5）が作成されること。
+     */
+    public function testEnable()
     {
         $this->pluginManager->enable([], static::getContainer());
 
@@ -56,9 +58,11 @@ class PluginManagerTest extends EccubeTestCase
         $this->assertSame(5, $config->getThreshold(), '初期閾値が5であること');
     }
 
+    /**
+     * enable: 設定が既にある場合は上書きしないこと。
+     */
     public function testEnableSkipsIfConfigExists()
     {
-        // 先に設定を作成しておく
         $existing = new StockAlertConfig();
         $existing->setThreshold(99);
         $existing->setCreateDate(new \DateTime());
@@ -68,13 +72,15 @@ class PluginManagerTest extends EccubeTestCase
 
         $this->pluginManager->enable([], static::getContainer());
 
-        // 設定が1件のみで既存の値が変わっていないこと
         $configs = $this->configRepository->findAll();
         $this->assertCount(1, $configs);
         $this->assertSame(99, $configs[0]->getThreshold());
     }
 
-    public function testUninstallDropsTables()
+    /**
+     * uninstall: プラグインのテーブルが削除されること。
+     */
+    public function testUninstall()
     {
         $conn = $this->entityManager->getConnection();
 
@@ -101,7 +107,6 @@ class PluginManagerTest extends EccubeTestCase
 
     /**
      * uninstallテストでテーブルが削除されている場合に再作成する。
-     * 他のテストへの影響を防ぐために tearDown で呼び出す。
      */
     private function recreateTablesIfNeeded(): void
     {
