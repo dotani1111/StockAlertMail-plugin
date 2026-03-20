@@ -37,3 +37,11 @@ stock_alert_mail.mail.restock_message: Please consider restocking these items.
 stock_alert_mail.nav.title: Stock Alert Mail
 stock_alert_mail.nav.config: Settings
 stock_alert_mail.nav.log: Send History
+
+stock_alert_mail.admin.log.title: Send History
+stock_alert_mail.admin.log.section: Alerted Products
+stock_alert_mail.admin.log.empty: No send history found.
+stock_alert_mail.admin.log.col.product: Product Name
+stock_alert_mail.admin.log.col.class: Variation
+stock_alert_mail.admin.log.col.stock: Current Stock
+stock_alert_mail.admin.log.col.alerted_at: Sent At

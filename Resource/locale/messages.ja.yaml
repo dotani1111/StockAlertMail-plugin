@@ -37,3 +37,11 @@ stock_alert_mail.mail.restock_message: 在庫の補充をご検討ください�
 stock_alert_mail.nav.title: 在庫アラートメール
 stock_alert_mail.nav.config: 設定
 stock_alert_mail.nav.log: 送信履歴
+
+stock_alert_mail.admin.log.title: 送信履歴
+stock_alert_mail.admin.log.section: アラートメール送信済み商品
+stock_alert_mail.admin.log.empty: 送信履歴はありません。
+stock_alert_mail.admin.log.col.product: 商品名
+stock_alert_mail.admin.log.col.class: 規格
+stock_alert_mail.admin.log.col.stock: 現在の在庫数
+stock_alert_mail.admin.log.col.alerted_at: 送信日時
