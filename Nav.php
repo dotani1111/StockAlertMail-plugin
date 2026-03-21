@@ -31,10 +31,6 @@ class Nav implements EccubeNav
                         'name' => 'stock_alert_mail.nav.config',
                         'url' => 'stock_alert_mail_admin_config',
                     ],
-                    'stock_alert_mail_mail_template' => [
-                        'name' => 'stock_alert_mail.nav.mail_template',
-                        'url' => 'stock_alert_mail_admin_mail_template',
-                    ],
                     'stock_alert_mail_log' => [
                         'name' => 'stock_alert_mail.nav.log',
                         'url' => 'stock_alert_mail_admin_log',

@@ -15,10 +15,13 @@ namespace Plugin\StockAlertMail\Service;
 
 use Eccube\Entity\BaseInfo;
 use Eccube\Entity\ClassCategory;
+use Eccube\Entity\MailTemplate;
 use Eccube\Entity\Product;
 use Eccube\Entity\ProductClass;
 use Eccube\Repository\BaseInfoRepository;
+use Eccube\Repository\MailTemplateRepository;
 use Plugin\StockAlertMail\Entity\StockAlertConfig;
+use Plugin\StockAlertMail\PluginManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -28,6 +31,7 @@ class StockAlertMailBuilder
 
     public function __construct(
         private readonly BaseInfoRepository $baseInfoRepository,
+        private readonly MailTemplateRepository $mailTemplateRepository,
         private readonly TranslatorInterface $translator,
         private readonly Environment $twig,
     ) {
@@ -55,47 +59,33 @@ class StockAlertMailBuilder
         return [$this->BaseInfo->getEmail01()];
     }
 
-    public function buildMailSubject(StockAlertConfig $config): string
+    public function buildMailSubject(): string
     {
-        if (!empty($config->getMailSubject())) {
-            $subject = strtr($config->getMailSubject(), [
-                '{shop_name}' => $this->BaseInfo->getShopName(),
-            ]);
-        } else {
-            $subject = $this->translator->trans('stock_alert_mail.command.mail_subject', ['%shop_name%' => $this->BaseInfo->getShopName()]);
-        }
+        $mailTemplate = $this->findMailTemplate();
 
-        // プレースホルダー展開後の改行をサニタイズ（ヘッダーインジェクション対策）
+        $subjectSuffix = $mailTemplate !== null
+            ? $mailTemplate->getMailSubject()
+            : '在庫アラート通知';
+
+        $subject = '['.$this->BaseInfo->getShopName().'] '.$subjectSuffix;
+
+        // 改行をサニタイズ（ヘッダーインジェクション対策）
         return preg_replace('/[\r\n]+/', ' ', $subject);
     }
 
-    public function buildMailBody(StockAlertConfig $config, array $items, int $threshold): string
+    public function buildMailBody(array $items, int $threshold): string
     {
-        $customBody = $config->getMailBody();
-        if (!empty($customBody)) {
-            $itemLines = [];
-            foreach ($items as $productClass) {
-                $name = $productClass->getProduct()->getName();
-                if ($productClass->hasClassCategory1()) {
-                    $name .= ' ['.$productClass->getClassCategory1()->getName();
-                    if ($productClass->hasClassCategory2()) {
-                        $name .= ' / '.$productClass->getClassCategory2()->getName();
-                    }
-                    $name .= ']';
-                }
-                $itemLines[] = '■ '.$name;
-                $itemLines[] = '  '.$this->translator->trans('stock_alert_mail.mail.current_stock', ['%stock%' => $productClass->getStock()]);
-                $itemLines[] = '  '.$this->translator->trans('stock_alert_mail.mail.threshold_label', ['%threshold%' => $threshold]);
-                $itemLines[] = '';
-            }
+        $mailTemplate = $this->findMailTemplate();
 
-            return strtr($customBody, [
-                '{shop_name}' => $this->BaseInfo->getShopName(),
-                '{threshold}' => $threshold,
-                '{items}' => implode("\n", $itemLines),
+        if ($mailTemplate !== null) {
+            return $this->twig->render($mailTemplate->getFileName(), [
+                'BaseInfo' => $this->BaseInfo,
+                'lowStockItems' => $items,
+                'threshold' => $threshold,
             ]);
         }
 
+        // MailTemplateが見つからない場合はプラグイン付属のテンプレートで代替
         return $this->twig->render('@StockAlertMail/Mail/stock_alert.twig', [
             'BaseInfo' => $this->BaseInfo,
             'lowStockItems' => $items,
@@ -134,5 +124,12 @@ class StockAlertMailBuilder
         $pcB->setStock(1);
 
         return [$pcA, $pcB];
+    }
+
+    private function findMailTemplate(): ?MailTemplate
+    {
+        return $this->mailTemplateRepository->findOneBy([
+            'file_name' => PluginManager::MAIL_TEMPLATE_FILE_NAME,
+        ]);
     }
 }

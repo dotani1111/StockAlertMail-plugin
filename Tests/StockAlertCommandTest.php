@@ -69,11 +69,16 @@ class StockAlertCommandTest extends EccubeTestCase
         parent::tearDown();
     }
 
-    public function testCommandSuccess()
+    public function testCommandSuccessNoAlert()
     {
+        // 閾値を-1にして、どの商品もアラート対象にならないようにする
+        $config = $this->configRepository->findOneBy([]);
+        $config->setThreshold(-1);
+        $this->entityManager->flush();
+
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
     }
 
     public function testNoDuplicateSend()
@@ -151,13 +156,9 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->assertNull($this->logRepository->findOneBy(['ProductClass' => $productClass]));
     }
 
-    public function testCustomMailSubject()
+    public function testMailSubjectFormat()
     {
         $this->createProduct();
-
-        $config = $this->configRepository->findOneBy([]);
-        $config->setMailSubject('[{shop_name}] カスタム件名テスト');
-        $this->entityManager->flush();
 
         $this->commandTester->execute([]);
 
@@ -166,38 +167,14 @@ class StockAlertCommandTest extends EccubeTestCase
 
         /** @var Email $message */
         $message = $this->getMailerMessage(0);
-        $this->assertStringContainsString('カスタム件名テスト', $message->getSubject());
+        // 件名が "[ショップ名] 在庫アラート通知" の形式であること
+        $this->assertStringContainsString('在庫アラート通知', $message->getSubject());
+        $this->assertStringStartsWith('[', $message->getSubject());
     }
 
-    public function testCustomMailBody()
+    public function testMailBodyFromDefaultTemplate()
     {
         $this->createProduct();
-
-        $config = $this->configRepository->findOneBy([]);
-        $config->setMailBody("カスタム本文テスト\n閾値:{threshold}\n{items}");
-        $this->entityManager->flush();
-
-        $this->commandTester->execute([]);
-
-        $this->assertSame(0, $this->commandTester->getStatusCode());
-        $this->assertEmailCount(1);
-
-        /** @var Email $message */
-        $message = $this->getMailerMessage(0);
-        $body = $message->getTextBody();
-        $this->assertStringContainsString('カスタム本文テスト', $body);
-        $this->assertStringContainsString('閾値:9999', $body);
-        // {items} が展開されて ■ 商品名 が含まれること
-        $this->assertStringContainsString('■', $body);
-    }
-
-    public function testDefaultTemplateUsedWhenBodyEmpty()
-    {
-        $this->createProduct();
-
-        // mailBody を明示的に null のままにする（デフォルトテンプレート使用）
-        $config = $this->configRepository->findOneBy([]);
-        $this->assertNull($config->getMailBody());
 
         $this->commandTester->execute([]);
 
@@ -207,6 +184,8 @@ class StockAlertCommandTest extends EccubeTestCase
         /** @var Email $message */
         $message = $this->getMailerMessage(0);
         // デフォルトTwigテンプレートの文字列が含まれること
-        $this->assertStringContainsString('在庫アラート通知', $message->getSubject());
+        $body = $message->getTextBody();
+        $this->assertStringContainsString('管理者様', $body);
+        $this->assertStringContainsString('在庫', $body);
     }
 }

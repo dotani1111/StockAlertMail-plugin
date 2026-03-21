@@ -11,24 +11,21 @@ stock_alert_mail.admin.config.cron.note: The example above runs at every hour on
 stock_alert_mail.admin.config.unit: unit(s)
 stock_alert_mail.admin.config.save: Save
 stock_alert_mail.admin.config.save_success: Saved successfully.
+stock_alert_mail.admin.config.send_test.button: Send Test Email
+stock_alert_mail.admin.config.send_test.confirm: Send a test email? (Uses dummy product data)
+stock_alert_mail.admin.config.send_test.success: 'Test email sent to %emails%.'
+stock_alert_mail.admin.config.send_test.failed: 'Failed to send test email: %message%'
+stock_alert_mail.admin.config.send_test.config_not_found: Settings not found.
 stock_alert_mail.admin.config.required: Required
 stock_alert_mail.admin.config.section.mail_template: Mail Template
-stock_alert_mail.admin.config.mail_template.description: If left empty, the default template will be used.
-stock_alert_mail.admin.config.mail_template.placeholders: Available placeholders
-stock_alert_mail.admin.config.mail_template.placeholder.shop_name: Shop name
-stock_alert_mail.admin.config.mail_template.placeholder.threshold: Threshold (units)
-stock_alert_mail.admin.config.mail_template.placeholder.items: List of low-stock products
-stock_alert_mail.admin.config.mail_template.subject_help: 'Default if empty: [{shop_name}] Stock Alert Notification'
-stock_alert_mail.admin.config.mail_template.body_help: If empty, the default body will be used.
+stock_alert_mail.admin.config.mail_template.description: The mail subject and body can be edited from the standard EC-CUBE mail settings.
+stock_alert_mail.admin.config.mail_template.link: Open mail settings
 
 stock_alert_mail.form.threshold.label: Stock Alert Threshold
 stock_alert_mail.form.threshold.placeholder: 'e.g. 5'
 stock_alert_mail.form.threshold.help: Products at or below this quantity will trigger an email notification.
 stock_alert_mail.form.alert_emails.label: Notification Email Address(es)
 stock_alert_mail.form.alert_emails.placeholder: If empty, the store email address will be used. Separate multiple addresses with commas.
-stock_alert_mail.form.mail_subject.label: Mail Subject
-stock_alert_mail.form.mail_subject.placeholder: '[{shop_name}] Stock Alert Notification'
-stock_alert_mail.form.mail_body.label: Mail Body
 
 stock_alert_mail.command.description: Notifies the administrator by email when stock falls below the threshold
 stock_alert_mail.command.config_not_found: Plugin configuration not found. Please enable the plugin.
@@ -36,7 +33,6 @@ stock_alert_mail.command.no_alert_items: No new low-stock items found.
 stock_alert_mail.command.alert_items_found: 'Found %count% new low-stock item(s).'
 stock_alert_mail.command.mail_sent: 'Stock alert email sent to %emails%.'
 stock_alert_mail.command.mail_failed: 'Failed to send email: %message%'
-stock_alert_mail.command.mail_subject: '[%shop_name%] Stock Alert Notification'
 
 stock_alert_mail.mail.greeting: 'Dear %shop_name% Administrator,'
 stock_alert_mail.mail.low_stock_intro: 'The following products have stock at or below the threshold (%threshold% units).'
@@ -48,22 +44,7 @@ stock_alert_mail.mail.restock_message: Please consider restocking these items.
 
 stock_alert_mail.nav.title: Stock Alert
 stock_alert_mail.nav.config: Settings
-stock_alert_mail.nav.mail_template: Mail Template
 stock_alert_mail.nav.log: Send History
-
-stock_alert_mail.admin.mail_template.title: Mail Template
-stock_alert_mail.admin.mail_template.section.placeholders: Available Placeholders
-stock_alert_mail.admin.mail_template.section.template: Edit Template
-stock_alert_mail.admin.mail_template.placeholder.description: The following placeholders can be used in the template.
-stock_alert_mail.admin.mail_template.placeholder.col.key: Placeholder
-stock_alert_mail.admin.mail_template.placeholder.col.description: Description
-stock_alert_mail.admin.mail_template.placeholder.col.subject: Usable in Subject
-
-stock_alert_mail.admin.mail_template.send_test.button: Send Test Email
-stock_alert_mail.admin.mail_template.send_test.confirm: Send a test email? (Uses dummy product data)
-stock_alert_mail.admin.mail_template.send_test.success: 'Test email sent to %emails%.'
-stock_alert_mail.admin.mail_template.send_test.failed: 'Failed to send test email: %message%'
-stock_alert_mail.admin.mail_template.send_test.config_not_found: Settings not found. Please save settings first.
 
 stock_alert_mail.test.dummy_product_a: Sample Product A
 stock_alert_mail.test.dummy_product_b: Sample Product B
