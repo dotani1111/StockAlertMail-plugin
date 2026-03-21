@@ -136,7 +136,7 @@ class StockAlertCommand extends Command
             $this->entityManager->flush();
 
             $io->success($this->translator->trans('stock_alert_mail.command.mail_sent', ['%emails%' => implode(', ', $toEmails)]));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $io->error($this->translator->trans('stock_alert_mail.command.mail_failed', ['%message%' => $e->getMessage()]));
 
             return Command::FAILURE;

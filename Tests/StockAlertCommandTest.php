@@ -46,6 +46,8 @@ class StockAlertCommandTest extends EccubeTestCase
         // eccube:plugin:install で作成された初期設定も含め全データをクリーンアップ
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertLog l')->execute();
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
+        // DQL DELETE はアイデンティティマップを更新しないため、手動でクリアして古い参照を除去する
+        $this->entityManager->clear();
 
         // setUp済みのカーネルをそのまま使い、再ブートによるEntityManager無効化を防ぐ
         $application = new Application(static::$kernel);
