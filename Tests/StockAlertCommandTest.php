@@ -101,7 +101,7 @@ class StockAlertCommandTest extends EccubeTestCase
 
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
@@ -164,7 +164,7 @@ class StockAlertCommandTest extends EccubeTestCase
 
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
@@ -180,7 +180,7 @@ class StockAlertCommandTest extends EccubeTestCase
 
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
