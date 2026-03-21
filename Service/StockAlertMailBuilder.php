@@ -75,22 +75,23 @@ class StockAlertMailBuilder
 
     public function buildMailBody(array $items, int $threshold): string
     {
-        $mailTemplate = $this->findMailTemplate();
-
-        if ($mailTemplate !== null) {
-            return $this->twig->render($mailTemplate->getFileName(), [
-                'BaseInfo' => $this->BaseInfo,
-                'lowStockItems' => $items,
-                'threshold' => $threshold,
-            ]);
-        }
-
-        // MailTemplateが見つからない場合はプラグイン付属のテンプレートで代替
-        return $this->twig->render('@StockAlertMail/Mail/stock_alert.twig', [
+        $templateParams = [
             'BaseInfo' => $this->BaseInfo,
             'lowStockItems' => $items,
             'threshold' => $threshold,
-        ]);
+        ];
+
+        $mailTemplate = $this->findMailTemplate();
+
+        if ($mailTemplate !== null) {
+            try {
+                return $this->twig->render($mailTemplate->getFileName(), $templateParams);
+            } catch (\Twig\Error\LoaderError $e) {
+                // テーマ側テンプレートが欠落している場合はプラグイン付属テンプレートへフォールバック
+            }
+        }
+
+        return $this->twig->render('@StockAlertMail/Mail/stock_alert.twig', $templateParams);
     }
 
     /**

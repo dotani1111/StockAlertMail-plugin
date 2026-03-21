@@ -116,15 +116,17 @@ class PluginManager extends AbstractPluginManager
         $sourcePath = __DIR__.'/Resource/template/Mail/stock_alert.twig';
 
         if (!file_exists($sourcePath)) {
-            return;
+            throw new \RuntimeException(sprintf('プラグインのテンプレートファイルが見つかりません: %s', $sourcePath));
         }
 
         $targetDir = dirname($targetPath);
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
+            throw new \RuntimeException(sprintf('テンプレートディレクトリの作成に失敗しました: %s', $targetDir));
         }
 
-        copy($sourcePath, $targetPath);
+        if (!copy($sourcePath, $targetPath)) {
+            throw new \RuntimeException(sprintf('テンプレートのコピーに失敗しました: %s → %s', $sourcePath, $targetPath));
+        }
     }
 
     private function removeTwigTemplate(ContainerInterface $container): void
