@@ -14,9 +14,11 @@
 namespace Plugin\StockAlertMail\Tests;
 
 use Eccube\Entity\BaseInfo;
+use Eccube\Entity\MailTemplate;
 use Eccube\Tests\EccubeTestCase;
 use Plugin\StockAlertMail\Entity\StockAlertConfig;
 use Plugin\StockAlertMail\Entity\StockAlertLog;
+use Plugin\StockAlertMail\PluginManager;
 use Plugin\StockAlertMail\Repository\StockAlertConfigRepository;
 use Plugin\StockAlertMail\Repository\StockAlertLogRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -46,6 +48,13 @@ class StockAlertCommandTest extends EccubeTestCase
         // eccube:plugin:install で作成された初期設定も含め全データをクリーンアップ
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertLog l')->execute();
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
+        // MailTemplateを削除し、フォールバックテンプレート(@StockAlertMail/Mail/...)を使用させる
+        $mailTemplate = $this->entityManager->getRepository(MailTemplate::class)
+            ->findOneBy(['file_name' => PluginManager::MAIL_TEMPLATE_FILE_NAME]);
+        if ($mailTemplate !== null) {
+            $this->entityManager->remove($mailTemplate);
+            $this->entityManager->flush();
+        }
         // DQL DELETE はアイデンティティマップを更新しないため、手動でクリアして古い参照を除去する
         $this->entityManager->clear();
 
