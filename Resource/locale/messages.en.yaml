@@ -38,6 +38,7 @@ stock_alert_mail.mail.greeting: 'Dear %shop_name% Administrator,'
 stock_alert_mail.mail.low_stock_intro: 'The following products have stock at or below the threshold (%threshold% units).'
 stock_alert_mail.mail.please_check: Please review and restock as needed.
 stock_alert_mail.mail.alert_title: 'Low Stock Items (%count% item(s))'
+stock_alert_mail.mail.product_id: 'Product ID: %id%'
 stock_alert_mail.mail.current_stock: 'Current Stock: %stock% unit(s)'
 stock_alert_mail.mail.threshold_label: 'Threshold: %threshold% unit(s)'
 stock_alert_mail.mail.restock_message: Please consider restocking these items.

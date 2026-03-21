@@ -56,7 +56,7 @@ class PluginManager extends AbstractPluginManager
     {
         $repository = $entityManager->getRepository(StockAlertConfig::class);
 
-        if ($repository->findOneBy([]) !== null) {
+        if ($repository->find(1) !== null) {
             return;
         }
 

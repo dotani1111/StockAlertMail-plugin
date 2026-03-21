@@ -38,6 +38,7 @@ stock_alert_mail.mail.greeting: '%shop_name% 管理者様'
 stock_alert_mail.mail.low_stock_intro: '在庫数が閾値（%threshold%個）以下の商品があります。'
 stock_alert_mail.mail.please_check: ご確認をお願いします。
 stock_alert_mail.mail.alert_title: '在庫アラート対象商品（%count%件）'
+stock_alert_mail.mail.product_id: '商品ID: %id%'
 stock_alert_mail.mail.current_stock: '現在の在庫数：%stock% 個'
 stock_alert_mail.mail.threshold_label: '閾値：%threshold% 個'
 stock_alert_mail.mail.restock_message: 在庫の補充をご検討ください。

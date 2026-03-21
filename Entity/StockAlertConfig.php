@@ -29,9 +29,9 @@ class StockAlertConfig
      *
      * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\GeneratedValue(strategy="NONE")
      */
-    private $id;
+    private $id = 1;
 
     /**
      * 在庫アラート閾値（この数以下になったら通知）

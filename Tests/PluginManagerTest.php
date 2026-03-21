@@ -91,7 +91,7 @@ class PluginManagerTest extends EccubeTestCase
     {
         $this->pluginManager->enable([], static::getContainer());
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         $this->assertNotNull($config, '設定が作成されていること');
         $this->assertSame(5, $config->getThreshold(), '初期閾値が5であること');
     }
@@ -178,7 +178,7 @@ class PluginManagerTest extends EccubeTestCase
         // disable() はデータ削除の独自ロジックを持たないが、エラーが発生せず設定が残ることを確認する
         $this->pluginManager->disable([], static::getContainer());
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         $this->assertNotNull($config, 'disable後も設定が保持されること');
         $this->assertSame(42, $config->getThreshold(), '設定値が変更されていないこと');
     }
@@ -206,7 +206,7 @@ class PluginManagerTest extends EccubeTestCase
         // 再enableできること
         $this->pluginManager->enable([], static::getContainer());
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         $this->assertNotNull($config, '再enable後に設定が作成されること');
         $this->assertSame(5, $config->getThreshold(), '初期閾値が5であること');
     }

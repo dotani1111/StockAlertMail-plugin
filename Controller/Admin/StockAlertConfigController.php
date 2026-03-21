@@ -42,7 +42,7 @@ class StockAlertConfigController extends AbstractController
      */
     public function index(Request $request): array|Response
     {
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         if ($config === null) {
             $config = new StockAlertConfig();
             $config->setCreateDate(new \DateTime());
@@ -77,7 +77,7 @@ class StockAlertConfigController extends AbstractController
             return $this->redirectToRoute('stock_alert_mail_admin_config');
         }
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         if ($config === null) {
             $this->addError('stock_alert_mail.admin.config.send_test.config_not_found', 'admin');
 

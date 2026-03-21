@@ -54,7 +54,7 @@ class StockAlertCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         if ($config === null) {
             $io->error($this->translator->trans('stock_alert_mail.command.config_not_found'));
 
@@ -71,6 +71,7 @@ class StockAlertCommand extends Command
             ->andWhere('pc.visible = true')
             ->andWhere('p.Status = :status')
             ->setParameter('status', ProductStatus::DISPLAY_SHOW)
+            ->orderBy('p.id', 'ASC')
             ->getQuery()
             ->getResult();
 

@@ -7,11 +7,13 @@
 {{ 'stock_alert_mail.mail.alert_title'|trans({'%count%': lowStockItems|length}) }}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+{% set currentProductId = null %}
 {% for item in lowStockItems %}
-■ {{ item.Product.name }}{% if item.hasClassCategory1 %} [{{ item.ClassCategory1.name }}{% if item.hasClassCategory2 %} / {{ item.ClassCategory2.name }}{% endif %}]{% endif %}
-
-  {{ 'stock_alert_mail.mail.current_stock'|trans({'%stock%': item.stock}) }}
-  {{ 'stock_alert_mail.mail.threshold_label'|trans({'%threshold%': threshold}) }}
+{% if item.Product.id != currentProductId %}
+{% set currentProductId = item.Product.id %}
+■ {{ item.Product.name }}（{{ 'stock_alert_mail.mail.product_id'|trans({'%id%': item.Product.id}) }}）
+{% endif %}
+  - {% if item.hasClassCategory1 %}{{ item.ClassCategory1.name }}{% if item.hasClassCategory2 %} / {{ item.ClassCategory2.name }}{% endif %}{% else %}—{% endif %}：{{ 'stock_alert_mail.mail.current_stock'|trans({'%stock%': item.stock}) }}
 
 {% endfor %}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
