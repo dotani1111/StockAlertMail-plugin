@@ -187,6 +187,35 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->assertStringStartsWith('[', $message->getSubject());
     }
 
+    public function testMailSubjectFallbackWhenEmpty()
+    {
+        $this->createProduct();
+
+        // 空白のみの件名を持つMailTemplateを作成
+        $mailTemplate = new MailTemplate();
+        $mailTemplate->setName('在庫アラートメール');
+        $mailTemplate->setFileName(PluginManager::MAIL_TEMPLATE_FILE_NAME);
+        $mailTemplate->setMailSubject('   ');
+        $mailTemplate->setCreateDate(new \DateTime());
+        $mailTemplate->setUpdateDate(new \DateTime());
+        $this->entityManager->persist($mailTemplate);
+        $this->entityManager->flush();
+
+        $this->commandTester->execute([]);
+
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
+        $this->assertEmailCount(1);
+
+        /** @var Email $message */
+        $message = $this->getMailerMessage(0);
+        // 空白のみの件名はデフォルト「在庫アラート通知」にフォールバックされること
+        $this->assertStringContainsString('在庫アラート通知', $message->getSubject());
+
+        // テスト後にMailTemplateを削除
+        $this->entityManager->remove($mailTemplate);
+        $this->entityManager->flush();
+    }
+
     public function testMailBodyFromDefaultTemplate()
     {
         $this->createProduct();
