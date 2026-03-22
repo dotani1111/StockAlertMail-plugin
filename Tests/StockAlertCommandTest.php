@@ -39,6 +39,9 @@ class StockAlertCommandTest extends EccubeTestCase
     /** @var CommandTester */
     private $commandTester;
 
+    /** @var int */
+    private $configId;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -70,6 +73,7 @@ class StockAlertCommandTest extends EccubeTestCase
         $config->setUpdateDate(new \DateTime());
         $this->entityManager->persist($config);
         $this->entityManager->flush();
+        $this->configId = $config->getId();
     }
 
     protected function tearDown(): void
@@ -83,7 +87,7 @@ class StockAlertCommandTest extends EccubeTestCase
     public function testCommandSuccessNoAlert()
     {
         // 閾値を-1にして、どの商品もアラート対象にならないようにする
-        $config = $this->configRepository->find(1);
+        $config = $this->configRepository->find($this->configId);
         $config->setThreshold(-1);
         $this->entityManager->flush();
 
@@ -125,7 +129,7 @@ class StockAlertCommandTest extends EccubeTestCase
     public function testNoMailWhenNoLowStock()
     {
         // threshold=-1 に変更（stock は 0 以上なので対象外）
-        $config = $this->configRepository->find(1);
+        $config = $this->configRepository->find($this->configId);
         $config->setThreshold(-1);
         $this->entityManager->flush();
 
@@ -156,7 +160,7 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->entityManager->flush();
 
         // threshold=-1 に変更（在庫回復済み扱い）
-        $config = $this->configRepository->find(1);
+        $config = $this->configRepository->find($this->configId);
         $config->setThreshold(-1);
         $this->entityManager->flush();
 
