@@ -53,6 +53,17 @@
 
                 <div class="card rounded border-0 mb-4">
                     <div class="card-header">
+                        <span>{{ 'stock_alert_mail.admin.config.section.mail_template'|trans }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ 'stock_alert_mail.admin.config.mail_template.description'|trans }}
+                            <a href="{{ path('admin_setting_shop_mail') }}" class="ml-2">{{ 'stock_alert_mail.admin.config.mail_template.link'|trans }} <i class="fa fa-external-link fa-fw"></i></a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
                         <span>{{ 'stock_alert_mail.admin.config.section.cron'|trans }}</span>
                     </div>
                     <div class="card-body">
@@ -62,12 +73,22 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-12 text-right">
-                        <button type="submit" class="btn btn-ec-conversion">{{ 'stock_alert_mail.admin.config.save'|trans }}</button>
+                <div class="row justify-content-between align-items-center">
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-outline-primary"
+                                onclick="if(confirm('{{ 'stock_alert_mail.admin.config.send_test.confirm'|trans }}')){document.getElementById('form-send-test').submit();}">
+                            <i class="fa fa-paper-plane mr-1"></i>{{ 'stock_alert_mail.admin.config.send_test.button'|trans }}
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-ec-conversion px-5">{{ 'stock_alert_mail.admin.config.save'|trans }}</button>
                     </div>
                 </div>
 
+            </form>
+
+            <form method="post" action="{{ path('stock_alert_mail_admin_config_send_test') }}" id="form-send-test" class="d-none">
+                <input type="hidden" name="_token" value="{{ csrf_token('stock_alert_mail_send_test') }}">
             </form>
 
         </div>

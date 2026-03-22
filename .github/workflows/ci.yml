@@ -109,11 +109,6 @@ jobs:
           --health-timeout=5s
           --health-retries=3
 
-      mailhog:
-        image: mailhog/mailhog
-        ports:
-          - 1025:1025
-
     steps:
       - name: Checkout plugin repository
         uses: actions/checkout@v6
@@ -151,7 +146,7 @@ jobs:
           DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql://root:root@127.0.0.1:3306/eccube_test' || 'postgresql://postgres:postgres@127.0.0.1:5432/eccube_test' }}
           DATABASE_SERVER_VERSION: ${{ matrix.database == 'mysql' && '8.0' || '15' }}
           DATABASE_CHARSET: ${{ matrix.database == 'mysql' && 'utf8mb4' || 'UTF8' }}
-          MAILER_DSN: 'smtp://127.0.0.1:1025'
+          MAILER_DSN: 'null://null'
         run: |
           php bin/console doctrine:database:create --if-not-exists
           php bin/console doctrine:schema:create
@@ -167,7 +162,7 @@ jobs:
           DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql://root:root@127.0.0.1:3306/eccube_test' || 'postgresql://postgres:postgres@127.0.0.1:5432/eccube_test' }}
           DATABASE_SERVER_VERSION: ${{ matrix.database == 'mysql' && '8.0' || '15' }}
           DATABASE_CHARSET: ${{ matrix.database == 'mysql' && 'utf8mb4' || 'UTF8' }}
-          MAILER_DSN: 'smtp://127.0.0.1:1025'
+          MAILER_DSN: 'null://null'
         run: |
           vendor/bin/phpunit --exclude-group cache-clear,cache-clear-install,update-schema-doctrine,plugin-service app/Plugin/StockAlertMail/Tests/
 

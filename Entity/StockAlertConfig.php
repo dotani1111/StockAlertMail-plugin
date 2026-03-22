@@ -29,9 +29,9 @@ class StockAlertConfig
      *
      * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\GeneratedValue(strategy="NONE")
      */
-    private $id;
+    private $id = 1;
 
     /**
      * 在庫アラート閾値（この数以下になったら通知）
@@ -46,22 +46,6 @@ class StockAlertConfig
      * @ORM\Column(name="alert_emails", type="string", length=1000, nullable=true)
      */
     private $alertEmails;
-
-    /**
-     * メール件名テンプレート（空の場合はデフォルトを使用）
-     * 使用可能プレースホルダー: {shop_name}
-     *
-     * @ORM\Column(name="mail_subject", type="string", length=500, nullable=true)
-     */
-    private $mailSubject;
-
-    /**
-     * メール本文テンプレート（空の場合はデフォルトを使用）
-     * 使用可能プレースホルダー: {shop_name}, {threshold}, {items}
-     *
-     * @ORM\Column(name="mail_body", type="text", nullable=true)
-     */
-    private $mailBody;
 
     /**
      * @ORM\Column(name="create_date", type="datetimetz")
@@ -98,30 +82,6 @@ class StockAlertConfig
     public function setAlertEmails($alertEmails)
     {
         $this->alertEmails = $alertEmails;
-
-        return $this;
-    }
-
-    public function getMailSubject()
-    {
-        return $this->mailSubject;
-    }
-
-    public function setMailSubject($mailSubject)
-    {
-        $this->mailSubject = $mailSubject;
-
-        return $this;
-    }
-
-    public function getMailBody()
-    {
-        return $this->mailBody;
-    }
-
-    public function setMailBody($mailBody)
-    {
-        $this->mailBody = $mailBody;
 
         return $this;
     }

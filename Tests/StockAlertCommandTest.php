@@ -14,9 +14,11 @@
 namespace Plugin\StockAlertMail\Tests;
 
 use Eccube\Entity\BaseInfo;
+use Eccube\Entity\MailTemplate;
 use Eccube\Tests\EccubeTestCase;
 use Plugin\StockAlertMail\Entity\StockAlertConfig;
 use Plugin\StockAlertMail\Entity\StockAlertLog;
+use Plugin\StockAlertMail\PluginManager;
 use Plugin\StockAlertMail\Repository\StockAlertConfigRepository;
 use Plugin\StockAlertMail\Repository\StockAlertLogRepository;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -37,6 +39,9 @@ class StockAlertCommandTest extends EccubeTestCase
     /** @var CommandTester */
     private $commandTester;
 
+    /** @var int */
+    private $configId;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,6 +51,15 @@ class StockAlertCommandTest extends EccubeTestCase
         // eccube:plugin:install で作成された初期設定も含め全データをクリーンアップ
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertLog l')->execute();
         $this->entityManager->createQuery('DELETE FROM Plugin\StockAlertMail\Entity\StockAlertConfig c')->execute();
+        // MailTemplateを削除し、フォールバックテンプレート(@StockAlertMail/Mail/...)を使用させる
+        $mailTemplate = $this->entityManager->getRepository(MailTemplate::class)
+            ->findOneBy(['file_name' => PluginManager::MAIL_TEMPLATE_FILE_NAME]);
+        if ($mailTemplate !== null) {
+            $this->entityManager->remove($mailTemplate);
+            $this->entityManager->flush();
+        }
+        // DQL DELETE はアイデンティティマップを更新しないため、手動でクリアして古い参照を除去する
+        $this->entityManager->clear();
 
         // setUp済みのカーネルをそのまま使い、再ブートによるEntityManager無効化を防ぐ
         $application = new Application(static::$kernel);
@@ -59,6 +73,7 @@ class StockAlertCommandTest extends EccubeTestCase
         $config->setUpdateDate(new \DateTime());
         $this->entityManager->persist($config);
         $this->entityManager->flush();
+        $this->configId = $config->getId();
     }
 
     protected function tearDown(): void
@@ -69,11 +84,16 @@ class StockAlertCommandTest extends EccubeTestCase
         parent::tearDown();
     }
 
-    public function testCommandSuccess()
+    public function testCommandSuccessNoAlert()
     {
+        // 閾値を-1にして、どの商品もアラート対象にならないようにする
+        $config = $this->configRepository->find($this->configId);
+        $config->setThreshold(-1);
+        $this->entityManager->flush();
+
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
     }
 
     public function testNoDuplicateSend()
@@ -94,7 +114,7 @@ class StockAlertCommandTest extends EccubeTestCase
 
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
@@ -109,7 +129,7 @@ class StockAlertCommandTest extends EccubeTestCase
     public function testNoMailWhenNoLowStock()
     {
         // threshold=-1 に変更（stock は 0 以上なので対象外）
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find($this->configId);
         $config->setThreshold(-1);
         $this->entityManager->flush();
 
@@ -140,7 +160,7 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->entityManager->flush();
 
         // threshold=-1 に変更（在庫回復済み扱い）
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find($this->configId);
         $config->setThreshold(-1);
         $this->entityManager->flush();
 
@@ -151,62 +171,66 @@ class StockAlertCommandTest extends EccubeTestCase
         $this->assertNull($this->logRepository->findOneBy(['ProductClass' => $productClass]));
     }
 
-    public function testCustomMailSubject()
+    public function testMailSubjectFormat()
     {
         $this->createProduct();
 
-        $config = $this->configRepository->findOneBy([]);
-        $config->setMailSubject('[{shop_name}] カスタム件名テスト');
-        $this->entityManager->flush();
-
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
         $message = $this->getMailerMessage(0);
-        $this->assertStringContainsString('カスタム件名テスト', $message->getSubject());
+        // 件名が "[ショップ名] 在庫アラート通知" の形式であること
+        $this->assertStringContainsString('在庫アラート通知', $message->getSubject());
+        $this->assertStringStartsWith('[', $message->getSubject());
     }
 
-    public function testCustomMailBody()
+    public function testMailSubjectFallbackWhenEmpty()
     {
         $this->createProduct();
 
-        $config = $this->configRepository->findOneBy([]);
-        $config->setMailBody("カスタム本文テスト\n閾値:{threshold}\n{items}");
+        // 空白のみの件名を持つMailTemplateを作成
+        $mailTemplate = new MailTemplate();
+        $mailTemplate->setName('在庫アラートメール');
+        $mailTemplate->setFileName(PluginManager::MAIL_TEMPLATE_FILE_NAME);
+        $mailTemplate->setMailSubject('   ');
+        $mailTemplate->setCreateDate(new \DateTime());
+        $mailTemplate->setUpdateDate(new \DateTime());
+        $this->entityManager->persist($mailTemplate);
         $this->entityManager->flush();
 
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
         $message = $this->getMailerMessage(0);
-        $body = $message->getTextBody();
-        $this->assertStringContainsString('カスタム本文テスト', $body);
-        $this->assertStringContainsString('閾値:9999', $body);
-        // {items} が展開されて ■ 商品名 が含まれること
-        $this->assertStringContainsString('■', $body);
+        // 空白のみの件名はデフォルト「在庫アラート通知」にフォールバックされること
+        $this->assertStringContainsString('在庫アラート通知', $message->getSubject());
+
+        // テスト後にMailTemplateを削除
+        $this->entityManager->remove($mailTemplate);
+        $this->entityManager->flush();
     }
 
-    public function testDefaultTemplateUsedWhenBodyEmpty()
+    public function testMailBodyFromDefaultTemplate()
     {
         $this->createProduct();
 
-        // mailBody を明示的に null のままにする（デフォルトテンプレート使用）
-        $config = $this->configRepository->findOneBy([]);
-        $this->assertNull($config->getMailBody());
-
         $this->commandTester->execute([]);
 
-        $this->assertSame(0, $this->commandTester->getStatusCode());
+        $this->assertSame(0, $this->commandTester->getStatusCode(), $this->commandTester->getDisplay());
         $this->assertEmailCount(1);
 
         /** @var Email $message */
         $message = $this->getMailerMessage(0);
         // デフォルトTwigテンプレートの文字列が含まれること
-        $this->assertStringContainsString('在庫アラート通知', $message->getSubject());
+        $body = $message->getTextBody();
+        $this->assertNotNull($body, 'Text body should not be null.');
+        $this->assertStringContainsString('管理者様', $body);
+        $this->assertStringContainsString('在庫', $body);
     }
 }

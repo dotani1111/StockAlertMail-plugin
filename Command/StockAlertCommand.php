@@ -54,7 +54,7 @@ class StockAlertCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         if ($config === null) {
             $io->error($this->translator->trans('stock_alert_mail.command.config_not_found'));
 
@@ -71,6 +71,7 @@ class StockAlertCommand extends Command
             ->andWhere('pc.visible = true')
             ->andWhere('p.Status = :status')
             ->setParameter('status', ProductStatus::DISPLAY_SHOW)
+            ->orderBy('p.id', 'ASC')
             ->getQuery()
             ->getResult();
 
@@ -108,12 +109,12 @@ class StockAlertCommand extends Command
         $io->info($this->translator->trans('stock_alert_mail.command.alert_items_found', ['%count%' => count($newAlertItems)]));
 
         // メール送信
-        $BaseInfo = $this->mailBuilder->getBaseInfo();
-        $toEmails = $this->mailBuilder->resolveToEmails($config);
-        $body = $this->mailBuilder->buildMailBody($config, $newAlertItems, $threshold);
-        $subject = $this->mailBuilder->buildMailSubject($config);
-
         try {
+            $BaseInfo = $this->mailBuilder->getBaseInfo();
+            $toEmails = $this->mailBuilder->resolveToEmails($config);
+            $body = $this->mailBuilder->buildMailBody($newAlertItems, $threshold);
+            $subject = $this->mailBuilder->buildMailSubject();
+
             $message = (new Email())
                 ->subject($subject)
                 ->from(new Address($BaseInfo->getEmail01(), $BaseInfo->getShopName()))
@@ -135,7 +136,7 @@ class StockAlertCommand extends Command
             $this->entityManager->flush();
 
             $io->success($this->translator->trans('stock_alert_mail.command.mail_sent', ['%emails%' => implode(', ', $toEmails)]));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $io->error($this->translator->trans('stock_alert_mail.command.mail_failed', ['%message%' => $e->getMessage()]));
 
             return Command::FAILURE;

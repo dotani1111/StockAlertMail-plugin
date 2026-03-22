@@ -14,6 +14,8 @@
 namespace Plugin\StockAlertMail\Tests;
 
 use Doctrine\DBAL\Schema\Schema;
+use Eccube\Common\EccubeConfig;
+use Eccube\Entity\MailTemplate;
 use Eccube\Tests\EccubeTestCase;
 use Plugin\StockAlertMail\Entity\StockAlertConfig;
 use Plugin\StockAlertMail\PluginManager;
@@ -91,7 +93,7 @@ class PluginManagerTest extends EccubeTestCase
     {
         $this->pluginManager->enable([], static::getContainer());
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         $this->assertNotNull($config, '設定が作成されていること');
         $this->assertSame(5, $config->getThreshold(), '初期閾値が5であること');
     }
@@ -178,7 +180,7 @@ class PluginManagerTest extends EccubeTestCase
         // disable() はデータ削除の独自ロジックを持たないが、エラーが発生せず設定が残ることを確認する
         $this->pluginManager->disable([], static::getContainer());
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         $this->assertNotNull($config, 'disable後も設定が保持されること');
         $this->assertSame(42, $config->getThreshold(), '設定値が変更されていないこと');
     }
@@ -206,9 +208,41 @@ class PluginManagerTest extends EccubeTestCase
         // 再enableできること
         $this->pluginManager->enable([], static::getContainer());
 
-        $config = $this->configRepository->findOneBy([]);
+        $config = $this->configRepository->find(1);
         $this->assertNotNull($config, '再enable後に設定が作成されること');
         $this->assertSame(5, $config->getThreshold(), '初期閾値が5であること');
+    }
+
+    /**
+     * enable: DB行があるがTwigファイルが欠損している場合、ファイルが自己修復されること。
+     */
+    public function testEnableRestoresMissingTwigTemplate()
+    {
+        // まず通常の enable で MailTemplate + Twig ファイルを作成
+        $this->pluginManager->enable([], static::getContainer());
+
+        /** @var EccubeConfig $eccubeConfig */
+        $eccubeConfig = static::getContainer()->get(EccubeConfig::class);
+        $twigPath = $eccubeConfig['eccube_theme_front_dir'].'/'.PluginManager::MAIL_TEMPLATE_FILE_NAME;
+
+        // DB行は残したまま Twig ファイルだけ削除（半壊状態を再現）
+        $mailTemplate = $this->entityManager->getRepository(MailTemplate::class)
+            ->findOneBy(['file_name' => PluginManager::MAIL_TEMPLATE_FILE_NAME]);
+        $this->assertNotNull($mailTemplate, 'MailTemplateのDB行が存在すること');
+        $this->assertFileExists($twigPath, 'enable後にTwigファイルが存在すること');
+
+        unlink($twigPath);
+        $this->assertFileDoesNotExist($twigPath, 'Twigファイルが削除されたこと');
+
+        // 再度 enable → Twig ファイルが復元されること
+        $this->pluginManager->enable([], static::getContainer());
+
+        $this->assertFileExists($twigPath, 'enable後にTwigファイルが自己修復されること');
+
+        // クリーンアップ
+        if (file_exists($twigPath)) {
+            unlink($twigPath);
+        }
     }
 
     /**
