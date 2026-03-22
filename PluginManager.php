@@ -71,15 +71,15 @@ class PluginManager extends AbstractPluginManager
 
     private function createMailTemplate(EntityManagerInterface $entityManager, ContainerInterface $container): void
     {
+        // まずテンプレート実体を保証（欠落時の自己修復）
+        $this->copyTwigTemplate($container);
+
         $repository = $entityManager->getRepository(MailTemplate::class);
 
-        // 既に登録済みの場合はスキップ
+        // 既に登録済みの場合はDB登録のみスキップ
         if ($repository->findOneBy(['file_name' => self::MAIL_TEMPLATE_FILE_NAME]) !== null) {
             return;
         }
-
-        // プラグインのデフォルトテンプレートを app/template/default/Mail/ にコピー
-        $this->copyTwigTemplate($container);
 
         $mailTemplate = new MailTemplate();
         $mailTemplate->setName('在庫アラートメール');
