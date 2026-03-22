@@ -200,6 +200,7 @@ class StockAlertCommandTest extends EccubeTestCase
         $message = $this->getMailerMessage(0);
         // デフォルトTwigテンプレートの文字列が含まれること
         $body = $message->getTextBody();
+        $this->assertNotNull($body, 'Text body should not be null.');
         $this->assertStringContainsString('管理者様', $body);
         $this->assertStringContainsString('在庫', $body);
     }
