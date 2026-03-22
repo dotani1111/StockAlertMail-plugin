@@ -84,13 +84,13 @@ class StockAlertConfigController extends AbstractController
             return $this->redirectToRoute('stock_alert_mail_admin_config');
         }
 
-        $BaseInfo = $this->mailBuilder->getBaseInfo();
-        $toEmails = $this->mailBuilder->resolveToEmails($config);
-        $dummyItems = $this->mailBuilder->createDummyItems();
-        $subject = '[TEST] '.$this->mailBuilder->buildMailSubject();
-        $body = $this->mailBuilder->buildMailBody($dummyItems, $config->getThreshold());
-
         try {
+            $BaseInfo = $this->mailBuilder->getBaseInfo();
+            $toEmails = $this->mailBuilder->resolveToEmails($config);
+            $dummyItems = $this->mailBuilder->createDummyItems();
+            $subject = '[TEST] '.$this->mailBuilder->buildMailSubject();
+            $body = $this->mailBuilder->buildMailBody($dummyItems, $config->getThreshold());
+
             $message = (new Email())
                 ->subject($subject)
                 ->from(new Address($BaseInfo->getEmail01(), $BaseInfo->getShopName()))
@@ -103,7 +103,7 @@ class StockAlertConfigController extends AbstractController
             $this->mailer->send($message);
 
             $this->addSuccess($this->translator->trans('stock_alert_mail.admin.config.send_test.success', ['%emails%' => implode(', ', $toEmails)]), 'admin');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->addError($this->translator->trans('stock_alert_mail.admin.config.send_test.failed', ['%message%' => $e->getMessage()]), 'admin');
         }
 
