@@ -27,7 +27,7 @@ use Twig\Environment;
 
 class StockAlertMailBuilder
 {
-    private BaseInfo $BaseInfo;
+    private ?BaseInfo $BaseInfo = null;
 
     public function __construct(
         private readonly BaseInfoRepository $baseInfoRepository,
@@ -35,11 +35,14 @@ class StockAlertMailBuilder
         private readonly TranslatorInterface $translator,
         private readonly Environment $twig,
     ) {
-        $this->BaseInfo = $this->baseInfoRepository->get();
     }
 
     public function getBaseInfo(): BaseInfo
     {
+        if ($this->BaseInfo === null) {
+            $this->BaseInfo = $this->baseInfoRepository->get();
+        }
+
         return $this->BaseInfo;
     }
 
@@ -56,7 +59,7 @@ class StockAlertMailBuilder
             }
         }
 
-        return [$this->BaseInfo->getEmail01()];
+        return [$this->getBaseInfo()->getEmail01()];
     }
 
     public function buildMailSubject(): string
@@ -70,7 +73,7 @@ class StockAlertMailBuilder
             $subjectSuffix = '在庫アラート通知';
         }
 
-        $subject = '['.$this->BaseInfo->getShopName().'] '.$subjectSuffix;
+        $subject = '['.$this->getBaseInfo()->getShopName().'] '.$subjectSuffix;
 
         // 改行をサニタイズ（ヘッダーインジェクション対策）
         return preg_replace('/[\r\n]+/', ' ', $subject);
@@ -79,7 +82,7 @@ class StockAlertMailBuilder
     public function buildMailBody(array $items, int $threshold): string
     {
         $templateParams = [
-            'BaseInfo' => $this->BaseInfo,
+            'BaseInfo' => $this->getBaseInfo(),
             'lowStockItems' => $items,
             'threshold' => $threshold,
         ];
