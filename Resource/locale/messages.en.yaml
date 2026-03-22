@@ -34,6 +34,7 @@ stock_alert_mail.command.alert_items_found: 'Found %count% new low-stock item(s)
 stock_alert_mail.command.mail_sent: 'Stock alert email sent to %emails%.'
 stock_alert_mail.command.mail_failed: 'Failed to send email: %message%'
 
+stock_alert_mail.mail.subject_default: Stock Alert Notification
 stock_alert_mail.mail.greeting: 'Dear %shop_name% Administrator,'
 stock_alert_mail.mail.low_stock_intro: 'The following products have stock at or below the threshold (%threshold% units).'
 stock_alert_mail.mail.please_check: Please review and restock as needed.

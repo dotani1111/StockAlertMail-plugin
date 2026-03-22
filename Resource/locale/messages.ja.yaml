@@ -34,6 +34,7 @@ stock_alert_mail.command.alert_items_found: '%count% 件の新規在庫アラー
 stock_alert_mail.command.mail_sent: '在庫アラートメールを %emails% に送信しました。'
 stock_alert_mail.command.mail_failed: 'メール送信に失敗しました: %message%'
 
+stock_alert_mail.mail.subject_default: 在庫アラート通知
 stock_alert_mail.mail.greeting: '%shop_name% 管理者様'
 stock_alert_mail.mail.low_stock_intro: '在庫数が閾値（%threshold%個）以下の商品があります。'
 stock_alert_mail.mail.please_check: ご確認をお願いします。

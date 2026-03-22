@@ -70,7 +70,7 @@ class StockAlertMailBuilder
             ? trim((string) $mailTemplate->getMailSubject())
             : '';
         if ($subjectSuffix === '') {
-            $subjectSuffix = '在庫アラート通知';
+            $subjectSuffix = $this->translator->trans('stock_alert_mail.mail.subject_default');
         }
 
         $subject = '['.$this->getBaseInfo()->getShopName().'] '.$subjectSuffix;
@@ -92,8 +92,8 @@ class StockAlertMailBuilder
         if ($mailTemplate !== null) {
             try {
                 return $this->twig->render($mailTemplate->getFileName(), $templateParams);
-            } catch (\Twig\Error\LoaderError $e) {
-                // テーマ側テンプレートが欠落している場合はプラグイン付属テンプレートへフォールバック
+            } catch (\Twig\Error\Error $e) {
+                // テーマ側テンプレートの欠落・構文エラー・変数未定義等はプラグイン付属テンプレートへフォールバック
             }
         }
 
