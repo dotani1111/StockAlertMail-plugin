@@ -64,8 +64,11 @@ class StockAlertMailBuilder
         $mailTemplate = $this->findMailTemplate();
 
         $subjectSuffix = $mailTemplate !== null
-            ? $mailTemplate->getMailSubject()
-            : '在庫アラート通知';
+            ? trim((string) $mailTemplate->getMailSubject())
+            : '';
+        if ($subjectSuffix === '') {
+            $subjectSuffix = '在庫アラート通知';
+        }
 
         $subject = '['.$this->BaseInfo->getShopName().'] '.$subjectSuffix;
 
