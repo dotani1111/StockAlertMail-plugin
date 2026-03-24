@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import path from 'path';
 
 const ECCUBE_ROOT = process.env.ECCUBE_ROOT
-  || path.resolve(__dirname, '../../../../..');
+  || path.resolve(__dirname, '../../../../../..');
 
 /** EC-CUBE の bin/console コマンドを実行する */
 export function execConsole(command: string): string {

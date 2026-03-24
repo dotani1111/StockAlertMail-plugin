@@ -33,7 +33,7 @@ export async function sendTestMail(page: Page): Promise<void> {
   await gotoConfig(page);
 
   // confirm ダイアログを自動承認
-  page.on('dialog', dialog => dialog.accept());
+  page.once('dialog', dialog => dialog.accept());
 
   await page.locator('button.btn-outline-primary').click();
 
