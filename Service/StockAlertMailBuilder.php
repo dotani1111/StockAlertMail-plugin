@@ -110,6 +110,7 @@ class StockAlertMailBuilder
         // ダミー商品A（規格なし）
         $productA = new Product();
         $productA->setName($this->translator->trans('stock_alert_mail.test.dummy_product_a'));
+        $this->setEntityId($productA, 1);
 
         $pcA = new ProductClass();
         $pcA->setProduct($productA);
@@ -118,6 +119,7 @@ class StockAlertMailBuilder
         // ダミー商品B（規格あり）
         $productB = new Product();
         $productB->setName($this->translator->trans('stock_alert_mail.test.dummy_product_b'));
+        $this->setEntityId($productB, 2);
 
         $cc1 = new ClassCategory();
         $cc1->setName($this->translator->trans('stock_alert_mail.test.dummy_class1'));
@@ -131,6 +133,16 @@ class StockAlertMailBuilder
         $pcB->setStock(1);
 
         return [$pcA, $pcB];
+    }
+
+    /**
+     * エンティティに仮IDを設定する（テスト用ダミーデータ向け）
+     */
+    private function setEntityId(object $entity, int $id): void
+    {
+        $ref = new \ReflectionProperty($entity, 'id');
+        $ref->setAccessible(true);
+        $ref->setValue($entity, $id);
     }
 
     private function findMailTemplate(): ?MailTemplate

@@ -1,4 +1,4 @@
-name: CI
+name: PHPUnit
 
 on:
   push:
@@ -6,63 +6,17 @@ on:
       - '*'
     tags:
       - '*'
-    paths:
-      - '**'
-      - '!*.md'
+    paths-ignore:
+      - '**/*.md'
+      - 'e2e/**'
   pull_request:
-    paths:
-      - '**'
-      - '!*.md'
+    paths-ignore:
+      - '**/*.md'
+      - 'e2e/**'
 
 jobs:
-  lint:
-    name: PHP-CS-Fixer & PHPStan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout plugin repository
-        uses: actions/checkout@v6
-        with:
-          path: plugin
-
-      - name: Checkout EC-CUBE
-        uses: actions/checkout@v6
-        with:
-          repository: EC-CUBE/ec-cube
-          ref: '4.3'
-          path: eccube
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, intl, pdo_mysql, pdo_pgsql, curl, zip, opcache
-          coverage: none
-
-      - name: Install EC-CUBE dependencies
-        working-directory: eccube
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader --no-interaction
-
-      - name: Install plugin
-        run: |
-          mkdir -p eccube/app/Plugin/StockAlertMail
-          find plugin -mindepth 1 -maxdepth 1 ! -name '.github' ! -name '.git' -exec cp -r {} eccube/app/Plugin/StockAlertMail/ \;
-
-      - name: Clear cache
-        working-directory: eccube
-        run: php bin/console cache:clear --env=dev --no-warmup
-
-      - name: PHP-CS-Fixer (dry-run)
-        working-directory: eccube
-        run: vendor/bin/php-cs-fixer fix app/Plugin/StockAlertMail/ --dry-run --diff --no-interaction
-
-      - name: PHPStan
-        working-directory: eccube
-        run: vendor/bin/phpstan analyse app/Plugin/StockAlertMail/ --level=1 --no-progress
-
   test:
-    name: PHPUnit Tests (EC-CUBE ${{ matrix.ec-cube-version }}, PHP ${{ matrix.php-version }}, ${{ matrix.database }})
-    needs: lint
+    name: EC-CUBE ${{ matrix.ec-cube-version }} / PHP ${{ matrix.php-version }} / ${{ matrix.database }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -132,7 +86,7 @@ jobs:
       - name: Install EC-CUBE dependencies
         working-directory: eccube
         run: |
-          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader --no-interaction
+          composer install --no-progress --prefer-dist --optimize-autoloader --no-interaction
 
       - name: Install plugin
         run: |
